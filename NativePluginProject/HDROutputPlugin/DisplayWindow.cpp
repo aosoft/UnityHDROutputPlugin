@@ -3,12 +3,13 @@
 
 void DisplayWindow::OnFinalMessage(_In_ HWND /*hWnd*/)
 {
-	delete this;
+	_this = nullptr;
 }
 
 
 LRESULT DisplayWindow::OnCreate(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	_this = shared_from_this();
 	bHandled = TRUE;
 	return 0;
 }

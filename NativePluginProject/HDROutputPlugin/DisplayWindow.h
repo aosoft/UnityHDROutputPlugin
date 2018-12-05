@@ -1,12 +1,17 @@
 #pragma once
 
 #include <atlwin.h>
+#include <memory>
 
 class DisplayWindow :
-	public ATL::CWindowImpl<DisplayWindow>
+	public ATL::CWindowImpl<DisplayWindow>,
+	public std::enable_shared_from_this<DisplayWindow>
 {
 public:
 	DECLARE_WND_CLASS(L"UnityHDROutput/DisplayWindow");
+
+private:
+	std::shared_ptr<DisplayWindow> _this;
 
 public:
 	BEGIN_MSG_MAP(DisplayWindow)
