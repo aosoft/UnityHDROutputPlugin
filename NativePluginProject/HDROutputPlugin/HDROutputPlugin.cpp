@@ -54,7 +54,7 @@ extern "C" {
 IUnityInterfaces *g_unityInterfaces = nullptr;
 
 int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance(
-	void ** buffer, int32_t bufferSize) try
+	void **buffer, int32_t bufferSize) try
 {
 	typedef void * void_ptr;
 
