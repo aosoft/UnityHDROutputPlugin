@@ -22,7 +22,9 @@ void HDROutputPlugin::Destroy()
 void HDROutputPlugin::CreateDisplayWindow()
 {
 	auto w = std::make_shared<DisplayWindow>();
-	if (w->Create(nullptr) == nullptr)
+	if (w->Create(
+			nullptr, ATL::CWindow::rcDefault,
+			L"Unity Preview", WS_OVERLAPPEDWINDOW | WS_VISIBLE) == nullptr)
 	{
 		return;
 	}
