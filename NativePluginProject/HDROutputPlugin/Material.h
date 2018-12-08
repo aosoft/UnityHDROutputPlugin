@@ -10,7 +10,7 @@ class Material
 private:
 	ComPtr<ID3D11Device> _device;
 
-	ComPtr<ID3D11ShaderResourceView> _rtv;
+	ComPtr<ID3D11ShaderResourceView> _srv;
 
 	ComPtr<ID3D11InputLayout> _layout;
 	ComPtr<ID3D11VertexShader> _vs;

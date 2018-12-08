@@ -13,7 +13,7 @@ ComPtr<ID3D11InputLayout> MeshVertex::CreateInputLayout(
 	ComPtr<ID3D11InputLayout> ret;
 
 	HRException::CheckNull(device);
-	HRException::ThrowExceptionForHR(device->CreateInputLayout(descs, _countof(descs), vsByteCode, vsByteCodeSize, &ret));
+	HRException::CheckHR(device->CreateInputLayout(descs, _countof(descs), vsByteCode, vsByteCodeSize, &ret));
 
 	return ret;
 }
@@ -25,14 +25,14 @@ Mesh::Mesh(ComPtr<ID3D11Device> const& device,
 	ComPtr<ID3D11InputLayout> ret;
 
 	HRException::CheckNull(device);
-	HRException::ThrowExceptionForHR(
+	HRException::CheckHR(
 		device->CreateBuffer(
 			&CD3D11_BUFFER_DESC(
 				static_cast<uint32_t>(vertCount * sizeof(MeshVertex)),
 				D3D11_BIND_VERTEX_BUFFER,
 				D3D11_USAGE_IMMUTABLE),
 			&CD3D11_SUBRESOURCE_DATA(verticies, sizeof(MeshVertex), 0), &_vertexBuffer));
-	HRException::ThrowExceptionForHR(
+	HRException::CheckHR(
 		device->CreateBuffer(
 			&CD3D11_BUFFER_DESC(
 				static_cast<uint32_t>(vertCount * sizeof(uint16_t)),

@@ -29,7 +29,7 @@ public:
 		return _hr;
 	}
 
-	static void ThrowExceptionForHR(HRESULT hr)
+	static void CheckHR(HRESULT hr)
 	{
 		if (FAILED(hr))
 		{

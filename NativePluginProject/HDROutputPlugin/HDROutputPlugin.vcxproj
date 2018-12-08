@@ -91,22 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;HDROUTPUTPLUGIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\PluginAPI</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;HDROUTPUTPLUGIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\PluginAPI</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -116,7 +101,31 @@
       <VariableName>g_shaderbin_%(Filename)</VariableName>
     </FxCompile>
     <FxCompile>
-      <HeaderFileOutput>$(OutDir)\Shader\%(Filename).csh</HeaderFileOutput>
+      <HeaderFileOutput>$(IntDir)\Shader\%(Filename).csh</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile>
+      <ObjectFileOutput />
+    </FxCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;HDROUTPUTPLUGIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <FxCompile>
+      <VariableName>g_shaderbin_%(Filename)</VariableName>
+    </FxCompile>
+    <FxCompile>
+      <HeaderFileOutput>$(IntDir)\Shader\%(Filename).csh</HeaderFileOutput>
     </FxCompile>
     <FxCompile>
       <ObjectFileOutput />
@@ -132,7 +141,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;HDROUTPUTPLUGIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\PluginAPI</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,6 +149,15 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <FxCompile>
+      <VariableName>g_shaderbin_%(Filename)</VariableName>
+    </FxCompile>
+    <FxCompile>
+      <HeaderFileOutput>$(IntDir)\Shader\%(Filename).csh</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile>
+      <ObjectFileOutput />
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -151,7 +169,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;HDROUTPUTPLUGIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\PluginAPI</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -159,6 +177,15 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <FxCompile>
+      <VariableName>g_shaderbin_%(Filename)</VariableName>
+    </FxCompile>
+    <FxCompile>
+      <HeaderFileOutput>$(IntDir)\Shader\%(Filename).csh</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile>
+      <ObjectFileOutput />
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DisplayWindow.h" />
