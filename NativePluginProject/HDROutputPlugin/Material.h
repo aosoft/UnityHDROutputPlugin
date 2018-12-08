@@ -3,6 +3,8 @@
 #include "common.h"
 #include <d3d11.h>
 
+#include "Mesh.h"
+
 class Material
 {
 private:
@@ -10,6 +12,7 @@ private:
 
 	ComPtr<ID3D11ShaderResourceView> _rtv;
 
+	ComPtr<ID3D11InputLayout> _layout;
 	ComPtr<ID3D11VertexShader> _vs;
 	ComPtr<ID3D11PixelShader> _ps;
 

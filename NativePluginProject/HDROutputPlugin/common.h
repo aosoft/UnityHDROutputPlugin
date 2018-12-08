@@ -2,9 +2,11 @@
 
 #include <windows.h>
 #include <comdef.h>
+#include <d3d11.h>
 
 #include <stdint.h>
 #include <exception>
+#include <array>
 #include <memory>
 
 
@@ -70,4 +72,20 @@ public:
 			throw HRException(E_POINTER);
 		}
 	}
+};
+
+class CD3D11_SUBRESOURCE_DATA :
+	public D3D11_SUBRESOURCE_DATA
+{
+public:
+	CD3D11_SUBRESOURCE_DATA(
+		const void *sysMem,
+		UINT sysMemPitch,
+		UINT sysMemSlicePitch)
+	{
+		pSysMem = sysMem;
+		SysMemPitch = sysMemPitch;
+		SysMemSlicePitch = sysMemSlicePitch;
+	}
+
 };
