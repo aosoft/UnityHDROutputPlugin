@@ -1,5 +1,8 @@
 #pragma once
 
+#include <windows.h>
+#include <exception>
+
 class HRException :
 	public std::exception
 {
