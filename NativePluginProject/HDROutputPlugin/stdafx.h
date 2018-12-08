@@ -31,4 +31,4 @@ template<class Intf>
 using ComPtr = _com_ptr_t<_com_IIID<Intf, &__uuidof(Intf)>>;
 
 
-#include "HRException.h"
+#include "common.h"
