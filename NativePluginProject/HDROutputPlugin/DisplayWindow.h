@@ -1,7 +1,7 @@
 #pragma once
 
+#include "common.h"
 #include <atlwin.h>
-#include <memory>
 
 class DisplayWindow :
 	public ATL::CWindowImpl<DisplayWindow>,

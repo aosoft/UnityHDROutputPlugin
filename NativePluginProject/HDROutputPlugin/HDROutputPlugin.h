@@ -1,7 +1,6 @@
 #pragma once
 
-#include <stdint.h>
-#include <memory>
+#include "common.h"
 
 #include "DisplayWindow.h"
 

@@ -1,7 +1,15 @@
 #pragma once
 
 #include <windows.h>
+#include <comdef.h>
+
+#include <stdint.h>
 #include <exception>
+#include <memory>
+
+
+template<class Intf>
+using ComPtr = _com_ptr_t<_com_IIID<Intf, &__uuidof(Intf)>>;
 
 class HRException :
 	public std::exception
