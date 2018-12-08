@@ -10,10 +10,10 @@
 #define WIN32_LEAN_AND_MEAN             // Windows ヘッダーからほとんど使用されていない部分を除外する
 #define _ATL_NO_AUTOMATIC_NAMESPACE
 
-// Windows ヘッダー ファイル
 #include <windows.h>
 
 #include <stdint.h>
+#include <exception>
 #include <memory>
 
 #include <d3d11.h>
@@ -31,4 +31,4 @@ template<class Intf>
 using ComPtr = _com_ptr_t<_com_IIID<Intf, &__uuidof(Intf)>>;
 
 
-// プログラムに必要な追加ヘッダーをここで参照してください
+#include "HRException.h"
