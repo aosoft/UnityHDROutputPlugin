@@ -13,8 +13,17 @@ private:
 	ComPtr<IDXGIFactory> _factory;
 	ComPtr<IDXGIFactory2> _factory2;
 	ComPtr<IDXGISwapChain> _swapchain;
+	ComPtr<IDXGISwapChain1> _swapchain1;
+	ComPtr<ID3D11RenderTargetView> _rtv;
 
 public:
 	RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device);
 
+	ComPtr<ID3D11RenderTargetView> const& GetRenderTargetView()
+	{
+		return _rtv;
+	}
+
+	void ResizeBuffer();
+	void Present();
 };

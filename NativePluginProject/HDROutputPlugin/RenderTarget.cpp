@@ -1,6 +1,17 @@
 #include "stdafx.h"
 #include "RenderTarget.h"
 
+inline ComPtr<ID3D11RenderTargetView> CreateRenderTargetView(ID3D11Device *device, IDXGISwapChain *swapchain)
+{
+	ComPtr<ID3D11RenderTargetView> ret;
+	ComPtr<ID3D11Texture2D> tex;
+
+	HRException::CheckHR(swapchain->GetBuffer(0, IID_PPV_ARGS(&tex)));
+	HRException::CheckHR(device->CreateRenderTargetView(tex, nullptr, &ret));
+
+	return ret;
+}
+
 RenderTarget::RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device) :
 	_hwnd(hwnd),
 	_device(device)
@@ -40,6 +51,35 @@ RenderTarget::RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device) :
 		desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		HRException::CheckHR(_factory->CreateSwapChain(device, &desc, &_swapchain));
+
+		_rtv = CreateRenderTargetView(device, _swapchain);
 	}
 
+}
+
+void RenderTarget::ResizeBuffer()
+{
+	_rtv = nullptr;
+
+	if (_swapchain != nullptr)
+	{
+		RECT rect;
+		DXGI_SWAP_CHAIN_DESC desc;
+		HRException::CheckHR(_swapchain->GetDesc(&desc));
+
+		::GetClientRect(_hwnd, &rect);
+		HRException::CheckHR(_swapchain->ResizeBuffers(
+			1, rect.right - rect.left, rect.bottom - rect.top, desc.BufferDesc.Format,
+			desc.Flags));
+
+		_rtv = CreateRenderTargetView(_device, _swapchain);
+	}
+}
+
+void RenderTarget::Present()
+{
+	if (_swapchain != nullptr)
+	{
+		HRException::CheckHR(_swapchain->Present(0, 0));
+	}
 }
