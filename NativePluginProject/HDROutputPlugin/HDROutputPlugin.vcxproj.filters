@@ -16,6 +16,9 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{722f572a-f542-44db-8b0d-34e3f3b4d547}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\include">
+      <UniqueIdentifier>{87fdf4c2-1180-4720-942f-25194397bd1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -25,21 +28,24 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="include\common.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\DisplayWindow.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\include</Filter>
     </ClInclude>
     <ClInclude Include="include\HDROutputPlugin.h">
+      <Filter>ヘッダー ファイル\include</Filter>
+    </ClInclude>
+    <ClInclude Include="HDROutputPluginImpl.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\Material.h">
+    <ClInclude Include="DisplayWindow.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\Mesh.h">
+    <ClInclude Include="Material.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\RenderTarget.h">
+    <ClInclude Include="Mesh.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

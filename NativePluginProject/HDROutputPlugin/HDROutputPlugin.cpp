@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "HDROutputPlugin.h"
+#include "HDROutputPluginImpl.h"
 
 HDROutputPlugin::HDROutputPlugin()
 {

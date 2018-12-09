@@ -1,4 +1,4 @@
-#include <atlbase.h>
+#include <Windows.h>
 #include <HDROutputPlugin.h>
 #include <vector>
 
