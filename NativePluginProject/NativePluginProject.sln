@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HDROutputPlugin", "HDROutpu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnityInterfaceManager", "UnityInterfaceManager\UnityInterfaceManager.vcxproj", "{95547CB4-4CB5-4BAF-8515-3AE484E70969}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HDROutputPluginTest", "HDROutputPluginTest\HDROutputPluginTest.vcxproj", "{08D05B2F-FC58-432E-A2B0-C3E26D6FB609}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{95547CB4-4CB5-4BAF-8515-3AE484E70969}.Release|x64.Build.0 = Release|x64
 		{95547CB4-4CB5-4BAF-8515-3AE484E70969}.Release|x86.ActiveCfg = Release|Win32
 		{95547CB4-4CB5-4BAF-8515-3AE484E70969}.Release|x86.Build.0 = Release|Win32
+		{08D05B2F-FC58-432E-A2B0-C3E26D6FB609}.Debug|x64.ActiveCfg = Debug|x64
+		{08D05B2F-FC58-432E-A2B0-C3E26D6FB609}.Debug|x64.Build.0 = Debug|x64
+		{08D05B2F-FC58-432E-A2B0-C3E26D6FB609}.Debug|x86.ActiveCfg = Debug|Win32
+		{08D05B2F-FC58-432E-A2B0-C3E26D6FB609}.Debug|x86.Build.0 = Debug|Win32
+		{08D05B2F-FC58-432E-A2B0-C3E26D6FB609}.Release|x64.ActiveCfg = Release|x64
+		{08D05B2F-FC58-432E-A2B0-C3E26D6FB609}.Release|x64.Build.0 = Release|x64
+		{08D05B2F-FC58-432E-A2B0-C3E26D6FB609}.Release|x86.ActiveCfg = Release|Win32
+		{08D05B2F-FC58-432E-A2B0-C3E26D6FB609}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -75,7 +75,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)\..\Assets\HDROutput\Plugins\x86_64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -91,7 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;HDROUTPUTPLUGIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;include\;..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -115,7 +114,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;HDROUTPUTPLUGIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;include\;..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -130,6 +129,10 @@
     <FxCompile>
       <ObjectFileOutput />
     </FxCompile>
+    <CustomBuildStep>
+      <Command>copy /y $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)\..\Assets\HDROutput\Plugins\x86_64\</Command>
+      <Outputs>$(OutDir)$(TargetName)$(TargetExt)</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -141,7 +144,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;HDROUTPUTPLUGIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;include\;..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -169,7 +172,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;HDROUTPUTPLUGIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;include\;..\..\PluginAPI;$(IntDir)\Shader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -186,14 +189,18 @@
     <FxCompile>
       <ObjectFileOutput />
     </FxCompile>
+    <CustomBuildStep>
+      <Command>copy /y $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)\..\Assets\HDROutput\Plugins\x86_64\</Command>
+      <Outputs>$(OutDir)$(TargetName)$(TargetExt)</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DisplayWindow.h" />
-    <ClInclude Include="HDROutputPlugin.h" />
-    <ClInclude Include="common.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="include\common.h" />
+    <ClInclude Include="include\DisplayWindow.h" />
+    <ClInclude Include="include\HDROutputPlugin.h" />
+    <ClInclude Include="include\Material.h" />
+    <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\RenderTarget.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
