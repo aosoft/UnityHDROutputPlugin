@@ -4,7 +4,7 @@
 
 #pragma comment(lib, "HDROutputPlugin.lib")
 
-extern "C" int32_t __declspec(dllimport) STDAPICALLTYPE CreateHDROutputPluginInstance(
+extern "C" int32_t __declspec(dllimport) UNITY_INTERFACE_API CreateHDROutputPluginInstance(
 	void **buffer, int32_t bufferSize);
 
 
@@ -22,6 +22,11 @@ public:
 	}
 };
 
+void UNITY_INTERFACE_API DebugLog(const wchar_t *msg)
+{
+	::MessageBoxW(nullptr, msg, L"DebugLog", MB_OK | MB_ICONERROR | MB_TOPMOST);
+}
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine, int)
 {
 	CCoInitialize coinit;
@@ -33,6 +38,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine,
 
 	IHDROutputPlugin *plugin = reinterpret_cast<IHDROutputPlugin *>(v[0]);
 
+	plugin->SetDebugLogFunc(DebugLog);
 	plugin->CreateDisplayWindow();
 
 	MSG msg;
@@ -44,6 +50,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine,
 			DispatchMessage(&msg);
 		}
 	}
+
+	plugin->Destroy();
 
 	return 0;
 }

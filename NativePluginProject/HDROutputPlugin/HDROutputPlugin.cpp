@@ -19,7 +19,12 @@ void HDROutputPlugin::Destroy()
 	delete this;
 }
 
-void HDROutputPlugin::CreateDisplayWindow()
+void HDROutputPlugin::SetDebugLogFunc(FnDebugLog fnDebugLog)
+{
+	_fnDebugLog = fnDebugLog;
+}
+
+void HDROutputPlugin::CreateDisplayWindow() try
 {
 	auto w = std::make_shared<DisplayWindow>();
 	if (w->Create(
@@ -31,11 +36,37 @@ void HDROutputPlugin::CreateDisplayWindow()
 
 	_window = w;
 }
+catch (const std::exception& e)
+{
+	ExceptionHandler(e);
+}
 
 PluginBool HDROutputPlugin::IsAvailableDisplayWindow()
 {
 	return _window.expired() ? PluginBool::False : PluginBool::True;
 }
+
+
+void HDROutputPlugin::ExceptionHandler(const std::exception& e)
+{
+	if (_fnDebugLog != nullptr)
+	{
+		auto *e2 = dynamic_cast<const HRException *>(&e);
+		if (e2 != nullptr)
+		{
+			wchar_t tmp[256];
+			swprintf_s(tmp, L"An error occurred. (hr = %08x)", e2->GetResult());
+			_fnDebugLog(tmp);
+		}
+		else
+		{
+			ATL::CA2W tmp(e.what());
+			_fnDebugLog(tmp);
+		}
+
+	}
+}
+
 
 
 template<typename RetT, typename ... Args>
