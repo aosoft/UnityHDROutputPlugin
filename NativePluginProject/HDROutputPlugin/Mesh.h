@@ -29,15 +29,7 @@ public:
 		const MeshVertex *verticies, size_t vertCount,
 		const uint16_t *indicies, size_t indexCount);
 
-	ComPtr<ID3D11Buffer> const& GetIndexBuffer() const
-	{
-		return _indexBuffer;
-	}
-
-	ComPtr<ID3D11Buffer> const& GetVertexBuffer() const
-	{
-		return _vertexBuffer;
-	}
+	void Setup(ComPtr<ID3D11DeviceContext> const& dc);
 
 	static std::shared_ptr<Mesh> CreateRectangleMesh(ComPtr<ID3D11Device> const& device);
 };

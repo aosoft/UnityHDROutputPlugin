@@ -41,6 +41,17 @@ Mesh::Mesh(ComPtr<ID3D11Device> const& device,
 			&CD3D11_SUBRESOURCE_DATA(verticies, sizeof(uint16_t), 0), &_indexBuffer));
 }
 
+void Mesh::Setup(ComPtr<ID3D11DeviceContext> const& dc)
+{
+	HRException::CheckNull(dc);
+
+	static const UINT vertexStrides[] = { sizeof(MeshVertex) };
+	static const UINT vertexOffsets[] = { 0 };
+
+	dc->IASetVertexBuffers(0, 1, &_vertexBuffer.GetInterfacePtr(), vertexStrides, vertexOffsets);
+	dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R16_UINT, 0);
+}
+
 std::shared_ptr<Mesh> Mesh::CreateRectangleMesh(ComPtr<ID3D11Device> const& device)
 {
 	static const MeshVertex verticies[] =
