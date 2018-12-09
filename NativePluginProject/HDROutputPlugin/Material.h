@@ -10,8 +10,6 @@ class Material
 private:
 	ComPtr<ID3D11Device> _device;
 
-	ComPtr<ID3D11ShaderResourceView> _srv;
-
 	ComPtr<ID3D11InputLayout> _layout;
 	ComPtr<ID3D11VertexShader> _vs;
 	ComPtr<ID3D11PixelShader> _ps;
@@ -22,6 +20,6 @@ private:
 
 public:
 	Material(ComPtr<ID3D11Device> const& device);
-	void Setup(ComPtr<ID3D11DeviceContext> const& dc);
+	void Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture2D> const& source);
 
 };
