@@ -9,7 +9,15 @@ enum class PluginBool : int32_t
 	True
 };
 
-using FnDebugLog = void(UNITY_INTERFACE_API *)(const wchar_t *);
+enum class PluginLogType : int32_t
+{
+	Information = 0,
+	Warning,
+	Error,
+};
+
+
+using FnDebugLog = void(UNITY_INTERFACE_API *)(PluginLogType, const wchar_t *);
 
 class IHDROutputPlugin
 {

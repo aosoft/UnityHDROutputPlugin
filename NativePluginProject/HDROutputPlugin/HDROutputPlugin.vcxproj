@@ -129,10 +129,10 @@
     <FxCompile>
       <ObjectFileOutput />
     </FxCompile>
-    <CustomBuildStep>
+    <CustomBuildStep />
+    <PostBuildEvent>
       <Command>copy /y $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)\..\Assets\HDROutput\Plugins\x86_64\</Command>
-      <Outputs>$(OutDir)$(TargetName)$(TargetExt)</Outputs>
-    </CustomBuildStep>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -189,10 +189,10 @@
     <FxCompile>
       <ObjectFileOutput />
     </FxCompile>
-    <CustomBuildStep>
+    <CustomBuildStep />
+    <PostBuildEvent>
       <Command>copy /y $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)\..\Assets\HDROutput\Plugins\x86_64\</Command>
-      <Outputs>$(OutDir)$(TargetName)$(TargetExt)</Outputs>
-    </CustomBuildStep>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DisplayWindow.h" />

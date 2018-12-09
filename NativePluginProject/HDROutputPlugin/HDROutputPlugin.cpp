@@ -56,12 +56,12 @@ void HDROutputPlugin::ExceptionHandler(const std::exception& e)
 		{
 			wchar_t tmp[256];
 			swprintf_s(tmp, L"An error occurred. (hr = %08x)", e2->GetResult());
-			_fnDebugLog(tmp);
+			_fnDebugLog(PluginLogType::Error, tmp);
 		}
 		else
 		{
 			ATL::CA2W tmp(e.what());
-			_fnDebugLog(tmp);
+			_fnDebugLog(PluginLogType::Error, tmp);
 		}
 
 	}
@@ -94,6 +94,7 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 	static const void_ptr funcs[] =
 	{
 		Proxy<void>::Func<&HDROutputPlugin::Destroy>,
+		Proxy<void, FnDebugLog>::Func<&HDROutputPlugin::SetDebugLogFunc>,
 		Proxy<void>::Func<&HDROutputPlugin::CreateDisplayWindow>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableDisplayWindow>,
 	};

@@ -22,7 +22,7 @@ public:
 	}
 };
 
-void UNITY_INTERFACE_API DebugLog(const wchar_t *msg)
+void UNITY_INTERFACE_API DebugLog(PluginLogType logtype, const wchar_t *msg)
 {
 	::MessageBoxW(nullptr, msg, L"DebugLog", MB_OK | MB_ICONERROR | MB_TOPMOST);
 }

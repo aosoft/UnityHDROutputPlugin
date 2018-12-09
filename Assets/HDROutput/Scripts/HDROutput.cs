@@ -37,6 +37,24 @@ namespace HDROutput
 		// Use this for initialization
 		void Start()
 		{
+			_plugin?.SetDebugLogFunc(
+				(logtype, msg) =>
+				{
+					switch (logtype)
+					{
+						case PluginLogType.Information:
+							Debug.Log(msg);
+							break;
+
+						case PluginLogType.Warning:
+							Debug.LogWarning(msg);
+							break;
+
+						case PluginLogType.Error:
+							Debug.LogError(msg);
+							break;
+					}
+				});
 			_plugin?.CreateDisplayWindow();
 		}
 
