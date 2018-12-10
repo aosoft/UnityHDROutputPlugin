@@ -10,6 +10,7 @@ class HDROutputPlugin :
 private:
 	std::weak_ptr<DisplayWindow> _window;
 	FnDebugLog _fnDebugLog;
+	ComPtr<ID3D11Device> _device;
 
 public:
 	HDROutputPlugin();
@@ -20,6 +21,5 @@ public:
 	virtual void CreateDisplayWindow() override;
 	virtual PluginBool IsAvailableDisplayWindow() override;
 
-private:
-	void ExceptionHandler(const std::exception& e);
+	virtual void SetD3D11Device(ID3D11Device *device) override;
 };

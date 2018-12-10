@@ -1,6 +1,8 @@
 ﻿#include "stdafx.h"
 #include "HDROutputPluginImpl.h"
 
+IUnityInterfaces *g_unityInterfaces = nullptr;
+
 HDROutputPlugin::HDROutputPlugin()
 {
 }
@@ -26,7 +28,18 @@ void HDROutputPlugin::SetDebugLogFunc(FnDebugLog fnDebugLog)
 
 void HDROutputPlugin::CreateDisplayWindow() try
 {
-	auto w = std::make_shared<DisplayWindow>();
+	auto device = _device;
+
+	if (device == nullptr && g_unityInterfaces != nullptr)
+	{
+		auto p = g_unityInterfaces->Get<IUnityGraphicsD3D11>();
+		if (p != nullptr)
+		{
+			device = p->GetDevice();
+		}
+	}
+
+	auto w = std::make_shared<DisplayWindow>(_fnDebugLog);
 	if (w->Create(
 			nullptr, ATL::CWindow::rcDefault,
 			L"Unity Preview", WS_OVERLAPPEDWINDOW | WS_VISIBLE) == nullptr)
@@ -34,11 +47,13 @@ void HDROutputPlugin::CreateDisplayWindow() try
 		return;
 	}
 
+	w->InitializeD3D11(device);
+
 	_window = w;
 }
 catch (const std::exception& e)
 {
-	ExceptionHandler(e);
+	ErrorLog(_fnDebugLog, e);
 }
 
 PluginBool HDROutputPlugin::IsAvailableDisplayWindow()
@@ -46,26 +61,11 @@ PluginBool HDROutputPlugin::IsAvailableDisplayWindow()
 	return _window.expired() ? PluginBool::False : PluginBool::True;
 }
 
-
-void HDROutputPlugin::ExceptionHandler(const std::exception& e)
+void HDROutputPlugin::SetD3D11Device(ID3D11Device *device)
 {
-	if (_fnDebugLog != nullptr)
-	{
-		auto *e2 = dynamic_cast<const HRException *>(&e);
-		if (e2 != nullptr)
-		{
-			wchar_t tmp[256];
-			swprintf_s(tmp, L"An error occurred. (hr = %08x)", e2->GetResult());
-			_fnDebugLog(PluginLogType::Error, tmp);
-		}
-		else
-		{
-			ATL::CA2W tmp(e.what());
-			_fnDebugLog(PluginLogType::Error, tmp);
-		}
-
-	}
+	_device = device;
 }
+
 
 
 
@@ -83,8 +83,6 @@ struct Proxy
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-IUnityInterfaces *g_unityInterfaces = nullptr;
 
 int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance(
 	void **buffer, int32_t bufferSize) try

@@ -27,9 +27,6 @@
     <ClInclude Include="targetver.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\common.h">
-      <Filter>ヘッダー ファイル\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\HDROutputPlugin.h">
       <Filter>ヘッダー ファイル\include</Filter>
     </ClInclude>
@@ -46,6 +43,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="RenderTarget.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

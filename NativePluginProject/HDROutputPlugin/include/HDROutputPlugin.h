@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <d3d11.h>
 #include <IUnityInterface.h>
 
 enum class PluginBool : int32_t
@@ -26,4 +27,7 @@ public:
 	virtual void SetDebugLogFunc(FnDebugLog fnDebugLog) = 0;
 	virtual void CreateDisplayWindow() = 0;
 	virtual PluginBool IsAvailableDisplayWindow() = 0;
+
+	//	for TestApp
+	virtual void SetD3D11Device(ID3D11Device *device) = 0;
 };

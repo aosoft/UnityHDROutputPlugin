@@ -14,7 +14,10 @@ inline ComPtr<ID3D11RenderTargetView> CreateRenderTargetView(ID3D11Device *devic
 
 RenderTarget::RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device) :
 	_hwnd(hwnd),
-	_device(device)
+	_device(device),
+	_format(DXGI_FORMAT_UNKNOWN),
+	_width(0),
+	_height(0)
 {
 	ComPtr<IDXGIDevice> dxgidevice;
 	ComPtr<IDXGIAdapter> adapter;
@@ -52,9 +55,61 @@ RenderTarget::RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device) :
 
 		HRException::CheckHR(_factory->CreateSwapChain(device, &desc, &_swapchain));
 
+		_format = desc.BufferDesc.Format;
+		_width = desc.BufferDesc.Width;
+		_height = desc.BufferDesc.Height;
 		_rtv = CreateRenderTargetView(device, _swapchain);
 	}
 
+}
+
+void RenderTarget::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture2D> const& source)
+{
+	HRException::CheckNull(dc);
+
+	if (_width < 1 || _height < 1)
+	{
+		return;
+	}
+
+	auto vp = D3D11_VIEWPORT();
+
+	if (source != nullptr)
+	{
+		static const float fill[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		dc->ClearRenderTargetView(_rtv, fill);
+
+		D3D11_TEXTURE2D_DESC descSource;
+		source->GetDesc(&descSource);
+		if (descSource.Width < 1 || descSource.Height < 1)
+		{
+			return;
+		}
+
+		vp.Width = _width;
+		vp.Height = static_cast<float>(_width) * descSource.Height / descSource.Width;
+		if (vp.Height > _height)
+		{
+			vp.Width = _height * descSource.Width / descSource.Height;
+			vp.Height = static_cast<float>(_height);
+		}
+
+		vp.TopLeftX = (static_cast<float>(_width) - vp.Width) / 2.0f;
+		vp.TopLeftY = (static_cast<float>(_height) - vp.Height) / 2.0f;
+	}
+	else
+	{
+		vp.TopLeftX = 0.0f;
+		vp.TopLeftY = 0.0f;
+		vp.Width = _width;
+		vp.Height = _height;
+	}
+
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	dc->RSSetViewports(1, &vp);
+
+	dc->OMSetRenderTargets(1, &_rtv.GetInterfacePtr(), nullptr);
 }
 
 void RenderTarget::ResizeBuffer()
@@ -64,14 +119,18 @@ void RenderTarget::ResizeBuffer()
 	if (_swapchain != nullptr)
 	{
 		RECT rect;
-		DXGI_SWAP_CHAIN_DESC desc;
-		HRException::CheckHR(_swapchain->GetDesc(&desc));
 
 		::GetClientRect(_hwnd, &rect);
-		HRException::CheckHR(_swapchain->ResizeBuffers(
-			1, rect.right - rect.left, rect.bottom - rect.top, desc.BufferDesc.Format,
-			desc.Flags));
 
+		uint32_t width = rect.right - rect.left;
+		uint32_t height = rect.bottom - rect.top;
+
+		HRException::CheckHR(_swapchain->ResizeBuffers(
+			1, width, height, _format,
+			DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+		
+		_width = width;
+		_height = height;
 		_rtv = CreateRenderTargetView(_device, _swapchain);
 	}
 }

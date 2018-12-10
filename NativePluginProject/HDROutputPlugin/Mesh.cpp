@@ -52,7 +52,7 @@ void Mesh::Setup(ComPtr<ID3D11DeviceContext> const& dc)
 	dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R16_UINT, 0);
 }
 
-std::shared_ptr<Mesh> Mesh::CreateRectangleMesh(ComPtr<ID3D11Device> const& device)
+std::unique_ptr<Mesh> Mesh::CreateRectangleMesh(ComPtr<ID3D11Device> const& device)
 {
 	static const MeshVertex verticies[] =
 	{
@@ -63,6 +63,6 @@ std::shared_ptr<Mesh> Mesh::CreateRectangleMesh(ComPtr<ID3D11Device> const& devi
 	};
 	static const uint16_t indicies[] = { 0, 1, 2, 1, 3, 2 };
 
-	return std::make_shared<Mesh>(device, verticies, _countof(verticies), indicies, _countof(indicies));
+	return std::make_unique<Mesh>(device, verticies, _countof(verticies), indicies, _countof(indicies));
 }
 

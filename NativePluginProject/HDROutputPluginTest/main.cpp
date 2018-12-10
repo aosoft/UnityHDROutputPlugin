@@ -38,6 +38,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine,
 
 	IHDROutputPlugin *plugin = reinterpret_cast<IHDROutputPlugin *>(v[0]);
 
+	//	TODO:
+	//plugin->SetD3D11Device(nullptr);
+
 	plugin->SetDebugLogFunc(DebugLog);
 	plugin->CreateDisplayWindow();
 

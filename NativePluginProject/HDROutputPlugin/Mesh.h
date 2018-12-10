@@ -31,5 +31,5 @@ public:
 
 	void Setup(ComPtr<ID3D11DeviceContext> const& dc);
 
-	static std::shared_ptr<Mesh> CreateRectangleMesh(ComPtr<ID3D11Device> const& device);
+	static std::unique_ptr<Mesh> CreateRectangleMesh(ComPtr<ID3D11Device> const& device);
 };

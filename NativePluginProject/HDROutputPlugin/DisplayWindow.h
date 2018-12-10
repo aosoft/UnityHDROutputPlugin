@@ -3,6 +3,11 @@
 #include "common.h"
 #include <atlwin.h>
 
+#include <HDROutputPlugin.h>
+#include "Material.h"
+#include "Mesh.h"
+#include "RenderTarget.h"
+
 class DisplayWindow :
 	public ATL::CWindowImpl<DisplayWindow>,
 	public std::enable_shared_from_this<DisplayWindow>
@@ -13,6 +18,13 @@ public:
 private:
 	std::shared_ptr<DisplayWindow> _this;
 
+	FnDebugLog _fnDebugLog;
+	ComPtr<ID3D11Device> _device;
+
+	std::unique_ptr<Mesh> _mesh;
+	std::unique_ptr<Material> _material;
+	std::unique_ptr<RenderTarget> _renderTarget;
+
 public:
 	BEGIN_MSG_MAP(DisplayWindow)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -20,6 +32,13 @@ public:
 		MESSAGE_HANDLER(WM_MOVE, OnMove)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 	END_MSG_MAP()
+
+	DisplayWindow(FnDebugLog fnDebugLog);
+
+	//	call after created window
+	void InitializeD3D11(ID3D11Device *device);
+
+	void Render(ComPtr<ID3D11Texture2D> const& source);
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/) override;
 
@@ -29,3 +48,23 @@ public:
 	LRESULT OnSize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 };
+
+inline void ErrorLog(FnDebugLog fnDebugLog, const std::exception& e)
+{
+	if (fnDebugLog != nullptr)
+	{
+		auto *e2 = dynamic_cast<const HRException *>(&e);
+		if (e2 != nullptr)
+		{
+			wchar_t tmp[256];
+			swprintf_s(tmp, L"An error occurred. (hr = %08x)", e2->GetResult());
+			fnDebugLog(PluginLogType::Error, tmp);
+		}
+		else
+		{
+			ATL::CA2W tmp(e.what());
+			fnDebugLog(PluginLogType::Error, tmp);
+		}
+
+	}
+}

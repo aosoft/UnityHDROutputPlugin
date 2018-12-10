@@ -195,9 +195,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="common.h" />
     <ClInclude Include="DisplayWindow.h" />
     <ClInclude Include="HDROutputPluginImpl.h" />
-    <ClInclude Include="include\common.h" />
     <ClInclude Include="include\HDROutputPlugin.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
