@@ -20,6 +20,7 @@ public:
 	virtual void SetDebugLogFunc(FnDebugLog fnDebugLog) override;
 	virtual void CreateDisplayWindow() override;
 	virtual PluginBool IsAvailableDisplayWindow() override;
+	virtual void Render(IUnknown *src) override;
 
 	virtual void SetD3D11Device(ID3D11Device *device) override;
 };

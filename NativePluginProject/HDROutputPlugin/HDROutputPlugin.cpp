@@ -61,6 +61,27 @@ PluginBool HDROutputPlugin::IsAvailableDisplayWindow()
 	return _window.expired() ? PluginBool::False : PluginBool::True;
 }
 
+void HDROutputPlugin::Render(IUnknown *src) try
+{
+	auto w = _window.lock();
+	if (w != nullptr)
+	{
+		ComPtr<ID3D11Texture2D> texture;
+		if (src != nullptr)
+		{
+			if (FAILED(src->QueryInterface(&texture)))
+			{
+				texture = nullptr;
+			}
+		}
+		w->Render(texture);
+	}
+}
+catch (const std::exception& e)
+{
+	ErrorLog(_fnDebugLog, e);
+}
+
 void HDROutputPlugin::SetD3D11Device(ID3D11Device *device)
 {
 	_device = device;
@@ -95,6 +116,7 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<void, FnDebugLog>::Func<&HDROutputPlugin::SetDebugLogFunc>,
 		Proxy<void>::Func<&HDROutputPlugin::CreateDisplayWindow>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableDisplayWindow>,
+		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::Render>,
 	};
 
 	static constexpr int32_t requiredSize = sizeof(funcs) / sizeof(void *) + 1;

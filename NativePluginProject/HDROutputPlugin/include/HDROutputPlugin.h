@@ -27,6 +27,7 @@ public:
 	virtual void SetDebugLogFunc(FnDebugLog fnDebugLog) = 0;
 	virtual void CreateDisplayWindow() = 0;
 	virtual PluginBool IsAvailableDisplayWindow() = 0;
+	virtual void Render(IUnknown *src) = 0;
 
 	//	for TestApp
 	virtual void SetD3D11Device(ID3D11Device *device) = 0;

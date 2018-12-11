@@ -26,10 +26,6 @@ void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture
 	ComPtr<ID3D11Device> device;
 	ComPtr<ID3D11ShaderResourceView> srv;
 	dc->GetDevice(&device);
-	device->CreateShaderResourceView(
-		texture,
-		&CD3D11_SHADER_RESOURCE_VIEW_DESC(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R8G8B8A8_UNORM),
-		&srv);
 
 	dc->IASetInputLayout(_layout);
 	dc->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -38,7 +34,15 @@ void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture
 
 	dc->PSSetShader(_ps, nullptr, 0);
 	dc->PSSetSamplers(0, 1, &_sampler.GetInterfacePtr());
-	dc->PSGetShaderResources(0, 1, &srv.GetInterfacePtr());
+
+	if (texture != nullptr)
+	{
+		device->CreateShaderResourceView(
+			texture,
+			&CD3D11_SHADER_RESOURCE_VIEW_DESC(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R8G8B8A8_UNORM),
+			&srv);
+		dc->PSGetShaderResources(0, 1, &srv.GetInterfacePtr());
+	}
 
 	dc->RSSetState(_rasterizer);
 
