@@ -27,20 +27,14 @@ void DisplayWindow::Render(ComPtr<ID3D11Texture2D> const& source)
 
 	dc->ClearState();
 
-	if (_mesh != nullptr)
-	{
-		_mesh->Setup(dc);
-	}
 	if (_material != nullptr)
 	{
 		_material->Setup(dc, source);
 	}
-	if (_renderTarget != nullptr)
+	if (_renderTarget != nullptr && _mesh != nullptr)
 	{
 		_renderTarget->Setup(dc, source);
-
-		dc->DrawIndexed(6, 0, 0);
-
+		_mesh->Draw(dc);
 		_renderTarget->Present();
 	}
 }

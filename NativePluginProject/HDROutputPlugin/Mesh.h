@@ -21,6 +21,8 @@ struct MeshVertex
 class Mesh
 {
 private:
+	size_t _indexCount;
+
 	ComPtr<ID3D11Buffer> _indexBuffer;
 	ComPtr<ID3D11Buffer> _vertexBuffer;
 
@@ -29,7 +31,7 @@ public:
 		const MeshVertex *verticies, size_t vertCount,
 		const uint16_t *indicies, size_t indexCount);
 
-	void Setup(ComPtr<ID3D11DeviceContext> const& dc);
+	void Draw(ComPtr<ID3D11DeviceContext> const& dc);
 
 	static std::unique_ptr<Mesh> CreateRectangleMesh(ComPtr<ID3D11Device> const& device);
 };

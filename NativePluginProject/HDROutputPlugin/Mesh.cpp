@@ -20,7 +20,8 @@ ComPtr<ID3D11InputLayout> MeshVertex::CreateInputLayout(
 
 Mesh::Mesh(ComPtr<ID3D11Device> const& device,
 	const MeshVertex *verticies, size_t vertCount,
-	const uint16_t *indicies, size_t indexCount)
+	const uint16_t *indicies, size_t indexCount) :
+	_indexCount(indexCount)
 {
 	ComPtr<ID3D11InputLayout> ret;
 
@@ -41,7 +42,7 @@ Mesh::Mesh(ComPtr<ID3D11Device> const& device,
 			&CD3D11_SUBRESOURCE_DATA(verticies, sizeof(uint16_t), 0), &_indexBuffer));
 }
 
-void Mesh::Setup(ComPtr<ID3D11DeviceContext> const& dc)
+void Mesh::Draw(ComPtr<ID3D11DeviceContext> const& dc)
 {
 	HRException::CheckNull(dc);
 
@@ -50,6 +51,8 @@ void Mesh::Setup(ComPtr<ID3D11DeviceContext> const& dc)
 
 	dc->IASetVertexBuffers(0, 1, &_vertexBuffer.GetInterfacePtr(), vertexStrides, vertexOffsets);
 	dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+	dc->DrawIndexed(static_cast<UINT>(_indexCount), 0, 0);
 }
 
 std::unique_ptr<Mesh> Mesh::CreateRectangleMesh(ComPtr<ID3D11Device> const& device)

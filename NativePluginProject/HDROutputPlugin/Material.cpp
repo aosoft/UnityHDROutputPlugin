@@ -19,7 +19,7 @@ Material::Material(ComPtr<ID3D11Device> const& device) : _device(device)
 	HRException::CheckHR(device->CreateRasterizerState(&culldesc, &_rasterizer));
 }
 
-void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture2D> const& source)
+void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture2D> const& texture)
 {
 	HRException::CheckNull(dc);
 
@@ -27,7 +27,7 @@ void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture
 	ComPtr<ID3D11ShaderResourceView> srv;
 	dc->GetDevice(&device);
 	device->CreateShaderResourceView(
-		source,
+		texture,
 		&CD3D11_SHADER_RESOURCE_VIEW_DESC(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R8G8B8A8_UNORM),
 		&srv);
 

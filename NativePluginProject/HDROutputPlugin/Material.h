@@ -20,6 +20,6 @@ private:
 
 public:
 	Material(ComPtr<ID3D11Device> const& device);
-	void Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture2D> const& source);
+	void Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture2D> const& texture);
 
 };
