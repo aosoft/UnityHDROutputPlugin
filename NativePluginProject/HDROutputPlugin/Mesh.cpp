@@ -36,10 +36,10 @@ Mesh::Mesh(ComPtr<ID3D11Device> const& device,
 	HRException::CheckHR(
 		device->CreateBuffer(
 			&CD3D11_BUFFER_DESC(
-				static_cast<uint32_t>(vertCount * sizeof(uint16_t)),
+				static_cast<uint32_t>(indexCount * sizeof(uint16_t)),
 				D3D11_BIND_INDEX_BUFFER,
 				D3D11_USAGE_IMMUTABLE),
-			&CD3D11_SUBRESOURCE_DATA(verticies, sizeof(uint16_t), 0), &_indexBuffer));
+			&CD3D11_SUBRESOURCE_DATA(indicies, sizeof(uint16_t), 0), &_indexBuffer));
 }
 
 void Mesh::Draw(ComPtr<ID3D11DeviceContext> const& dc)
@@ -48,6 +48,8 @@ void Mesh::Draw(ComPtr<ID3D11DeviceContext> const& dc)
 
 	static const UINT vertexStrides[] = { sizeof(MeshVertex) };
 	static const UINT vertexOffsets[] = { 0 };
+
+	dc->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	dc->IASetVertexBuffers(0, 1, &_vertexBuffer.GetInterfacePtr(), vertexStrides, vertexOffsets);
 	dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R16_UINT, 0);
@@ -62,7 +64,7 @@ std::unique_ptr<Mesh> Mesh::CreateRectangleMesh(ComPtr<ID3D11Device> const& devi
 		{ ::DirectX::XMFLOAT2(-1.0f,  1.0f), ::DirectX::XMFLOAT2(0.0f, 0.0f) },
 		{ ::DirectX::XMFLOAT2( 1.0f,  1.0f), ::DirectX::XMFLOAT2(1.0f, 0.0f) },
 		{ ::DirectX::XMFLOAT2(-1.0f, -1.0f), ::DirectX::XMFLOAT2(0.0f, 1.0f) },
-		{ ::DirectX::XMFLOAT2(-1.0f,  1.0f), ::DirectX::XMFLOAT2(1.0f, 1.0f) },
+		{ ::DirectX::XMFLOAT2( 1.0f, -1.0f), ::DirectX::XMFLOAT2(1.0f, 1.0f) },
 	};
 	static const uint16_t indicies[] = { 0, 1, 2, 1, 3, 2 };
 

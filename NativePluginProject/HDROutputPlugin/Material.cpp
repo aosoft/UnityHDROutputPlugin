@@ -28,7 +28,6 @@ void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture
 	dc->GetDevice(&device);
 
 	dc->IASetInputLayout(_layout);
-	dc->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	dc->VSSetShader(_vs, nullptr, 0);
 
