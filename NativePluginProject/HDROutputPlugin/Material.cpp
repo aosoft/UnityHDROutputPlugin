@@ -3,7 +3,9 @@
 #include "vs.csh"
 #include "ps_Through.csh"
 
-Material::Material(ComPtr<ID3D11Device> const& device) : _device(device)
+Material::Material(ComPtr<ID3D11Device> const& device) :
+	_device(device),
+	_descTexture()
 {
 	HRException::CheckNull(device);
 
@@ -19,13 +21,33 @@ Material::Material(ComPtr<ID3D11Device> const& device) : _device(device)
 	HRException::CheckHR(device->CreateRasterizerState(&culldesc, &_rasterizer));
 }
 
-void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture2D> const& texture)
+void Material::SetTexture(ComPtr<ID3D11Texture2D> const& texture)
+{
+	if (texture != _texture)
+	{
+		_srv = nullptr;
+		_texture = nullptr;
+
+		_device->CreateShaderResourceView(
+			texture,
+			&CD3D11_SHADER_RESOURCE_VIEW_DESC(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R8G8B8A8_UNORM),
+			&_srv);
+		_texture = texture;
+
+		if (texture != nullptr)
+		{
+			texture->GetDesc(&_descTexture);
+		}
+		else
+		{
+			_descTexture = D3D11_TEXTURE2D_DESC();
+		}
+	}
+}
+
+void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc)
 {
 	HRException::CheckNull(dc);
-
-	ComPtr<ID3D11Device> device;
-	ComPtr<ID3D11ShaderResourceView> srv;
-	dc->GetDevice(&device);
 
 	dc->IASetInputLayout(_layout);
 
@@ -34,15 +56,14 @@ void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture
 	dc->PSSetShader(_ps, nullptr, 0);
 	dc->PSSetSamplers(0, 1, &_sampler.GetInterfacePtr());
 
-	if (texture != nullptr)
+	if (_srv != nullptr)
 	{
-		device->CreateShaderResourceView(
-			texture,
-			&CD3D11_SHADER_RESOURCE_VIEW_DESC(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R8G8B8A8_UNORM),
-			&srv);
-		dc->PSSetShaderResources(0, 1, &srv.GetInterfacePtr());
+		dc->PSSetShaderResources(0, 1, &_srv.GetInterfacePtr());
 	}
-
+	else
+	{
+		dc->PSSetShaderResources(0, 0, nullptr);
+	}
 	dc->RSSetState(_rasterizer);
 
 	static const FLOAT blendFactor[4] = { 0 };

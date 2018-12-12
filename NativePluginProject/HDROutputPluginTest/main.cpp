@@ -87,7 +87,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine,
 		return 0;
 	}
 
-	texture = CreateSampleTexture(device, 256, 256);
+	texture = CreateSampleTexture(device, 1280, 720);
 	if (texture == nullptr)
 	{
 		return 0;

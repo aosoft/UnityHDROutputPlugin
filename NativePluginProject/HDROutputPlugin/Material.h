@@ -14,12 +14,27 @@ private:
 	ComPtr<ID3D11VertexShader> _vs;
 	ComPtr<ID3D11PixelShader> _ps;
 
+	D3D11_TEXTURE2D_DESC _descTexture;
+	ComPtr<ID3D11Texture2D> _texture;
+	ComPtr<ID3D11ShaderResourceView> _srv;
+
 	ComPtr<ID3D11SamplerState> _sampler;
 	ComPtr<ID3D11BlendState> _blend;
 	ComPtr<ID3D11RasterizerState> _rasterizer;
 
 public:
 	Material(ComPtr<ID3D11Device> const& device);
-	void Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture2D> const& texture);
 
+	ComPtr<ID3D11Texture2D> const& GetTexture()
+	{
+		return _texture;
+	}
+	const D3D11_TEXTURE2D_DESC& GetTextureDesc() const
+	{
+		return _descTexture;
+	}
+
+	void SetTexture(ComPtr<ID3D11Texture2D> const& texture);
+
+	void Setup(ComPtr<ID3D11DeviceContext> const& dc);
 };

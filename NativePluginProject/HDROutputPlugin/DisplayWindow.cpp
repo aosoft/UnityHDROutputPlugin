@@ -27,13 +27,12 @@ void DisplayWindow::Render(ComPtr<ID3D11Texture2D> const& source)
 
 	dc->ClearState();
 
-	if (_material != nullptr)
+	if (_material != nullptr && _renderTarget != nullptr && _mesh != nullptr)
 	{
-		_material->Setup(dc, source);
-	}
-	if (_renderTarget != nullptr && _mesh != nullptr)
-	{
-		_renderTarget->Setup(dc, source);
+		_material->SetTexture(source);
+
+		_material->Setup(dc);
+		_renderTarget->Setup(dc, _material->GetTextureDesc());
 		_mesh->Draw(dc);
 		_renderTarget->Present();
 	}
@@ -69,6 +68,19 @@ LRESULT DisplayWindow::OnSize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (_renderTarget != nullptr)
 	{
 		_renderTarget->ResizeBuffer();
+
+		ComPtr<ID3D11DeviceContext> dc;
+		_device->GetImmediateContext(&dc);
+
+		dc->ClearState();
+
+		if (_material != nullptr && _renderTarget != nullptr && _mesh != nullptr)
+		{
+			_material->Setup(dc);
+			_renderTarget->Setup(dc, _material->GetTextureDesc());
+			_mesh->Draw(dc);
+			_renderTarget->Present();
+		}
 	}
 
 	bHandled = TRUE;

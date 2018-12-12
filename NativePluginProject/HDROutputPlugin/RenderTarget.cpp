@@ -63,7 +63,7 @@ RenderTarget::RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device) :
 
 }
 
-void RenderTarget::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture2D> const& source)
+void RenderTarget::Setup(ComPtr<ID3D11DeviceContext> const& dc, uint32_t sourceWidth, uint32_t sourceHeight)
 {
 	HRException::CheckNull(dc);
 
@@ -74,23 +74,16 @@ void RenderTarget::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Tex
 
 	auto vp = D3D11_VIEWPORT();
 
-	if (source != nullptr)
+	if (sourceWidth > 0 && sourceHeight > 0)
 	{
 		static const float fill[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		dc->ClearRenderTargetView(_rtv, fill);
 
-		D3D11_TEXTURE2D_DESC descSource;
-		source->GetDesc(&descSource);
-		if (descSource.Width < 1 || descSource.Height < 1)
-		{
-			return;
-		}
-
-		vp.Width = _width;
-		vp.Height = static_cast<float>(_width) * descSource.Height / descSource.Width;
+		vp.Width = static_cast<float>(_width);
+		vp.Height = static_cast<float>(_width) * sourceHeight / sourceWidth;
 		if (vp.Height > _height)
 		{
-			vp.Width = _height * descSource.Width / descSource.Height;
+			vp.Width = static_cast<float>(_height) * sourceWidth / sourceHeight;
 			vp.Height = static_cast<float>(_height);
 		}
 
@@ -101,8 +94,8 @@ void RenderTarget::Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Tex
 	{
 		vp.TopLeftX = 0.0f;
 		vp.TopLeftY = 0.0f;
-		vp.Width = _width;
-		vp.Height = _height;
+		vp.Width = static_cast<float>(_width);
+		vp.Height = static_cast<float>(_height);
 	}
 
 	vp.MinDepth = 0.0f;

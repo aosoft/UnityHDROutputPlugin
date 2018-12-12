@@ -28,7 +28,13 @@ public:
 		return _rtv;
 	}
 
-	void Setup(ComPtr<ID3D11DeviceContext> const& dc, ComPtr<ID3D11Texture2D> const& source);
+	void Setup(ComPtr<ID3D11DeviceContext> const& dc, uint32_t sourceWidth, uint32_t sourceHeight);
+
+	void Setup(ComPtr<ID3D11DeviceContext> const& dc, const D3D11_TEXTURE2D_DESC& sourceDesc)
+	{
+		Setup(dc, sourceDesc.Width, sourceDesc.Height);
+	}
+
 
 	void ResizeBuffer();
 	void Present();
