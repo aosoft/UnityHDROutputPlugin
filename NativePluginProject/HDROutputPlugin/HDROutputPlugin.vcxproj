@@ -242,6 +242,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shader\color.hlsli" />
     <None Include="Shader\common.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

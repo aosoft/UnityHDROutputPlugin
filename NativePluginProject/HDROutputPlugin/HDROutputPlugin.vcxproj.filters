@@ -84,5 +84,8 @@
     <None Include="Shader\common.hlsli">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Shader\color.hlsli">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
