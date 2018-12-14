@@ -39,17 +39,7 @@ void HDROutputPlugin::CreateDisplayWindow() try
 		}
 	}
 
-	auto w = std::make_shared<DisplayWindow>(_fnDebugLog);
-	if (w->Create(
-			nullptr, ATL::CWindow::rcDefault,
-			L"Unity Preview", WS_OVERLAPPEDWINDOW | WS_VISIBLE) == nullptr)
-	{
-		return;
-	}
-
-	w->InitializeD3D11(device);
-
-	_window = w;
+	_window = DisplayWindow::CreateInstance(device, _fnDebugLog);
 }
 catch (const std::exception& e)
 {

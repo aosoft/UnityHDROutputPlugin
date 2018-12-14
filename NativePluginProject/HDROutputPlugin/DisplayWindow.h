@@ -33,10 +33,12 @@ public:
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 	END_MSG_MAP()
 
-	DisplayWindow(FnDebugLog fnDebugLog);
+private:
+	DisplayWindow();
+	void InitializeInstance(ID3D11Device *device, FnDebugLog fnDebugLog);
 
-	//	call after created window
-	void InitializeD3D11(ID3D11Device *device);
+public:
+	static std::shared_ptr<DisplayWindow> CreateInstance(ID3D11Device *device, FnDebugLog fnDebugLog);
 
 	void Render(ComPtr<ID3D11Texture2D> const& source);
 
@@ -47,6 +49,8 @@ public:
 	LRESULT OnMove(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnSize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
+private:
+	void DrawAndPresent();
 };
 
 inline void ErrorLog(FnDebugLog fnDebugLog, const std::exception& e)
