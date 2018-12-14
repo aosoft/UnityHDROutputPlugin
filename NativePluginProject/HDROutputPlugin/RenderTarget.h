@@ -11,21 +11,31 @@ private:
 
 	HWND _hwnd;
 	ComPtr<IDXGIFactory> _factory;
-	ComPtr<IDXGIFactory2> _factory2;
 	ComPtr<IDXGISwapChain> _swapchain;
-	ComPtr<IDXGISwapChain1> _swapchain1;
 	ComPtr<ID3D11RenderTargetView> _rtv;
+	HMONITOR _currentDisplay;
 
 	DXGI_FORMAT _format;
 	uint32_t _width;
 	uint32_t _height;
+	uint32_t _bufferCount;
+
+	bool _requestHDR;
+	bool _availableHDR;
 
 public:
 	RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device);
 
-	ComPtr<ID3D11RenderTargetView> const& GetRenderTargetView()
+	bool GetRequestHDR() const
 	{
-		return _rtv;
+		return _requestHDR;
+	}
+
+	void SetRequestHDR(bool flag);
+
+	bool IsAvailableHDR() const
+	{
+		return _availableHDR;
 	}
 
 	void Setup(ComPtr<ID3D11DeviceContext> const& dc, uint32_t sourceWidth, uint32_t sourceHeight);
@@ -37,5 +47,10 @@ public:
 
 
 	void ResizeBuffer();
+	bool InitializeSwapChainIfDisplayChanged();
 	void Present();
+
+private:
+	void InitializeSwapChain();
+
 };

@@ -59,6 +59,10 @@ LRESULT DisplayWindow::OnDestroy(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 LRESULT DisplayWindow::OnMove(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	if (_renderTarget != nullptr)
+	{
+		_renderTarget->InitializeSwapChainIfDisplayChanged();
+	}
 	bHandled = TRUE;
 	return 0;
 }
