@@ -176,6 +176,10 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<void, FnDebugLog>::Func<&HDROutputPlugin::SetDebugLogFunc>,
 		Proxy<void, const PluginRect *>::Func<&HDROutputPlugin::CreateDisplayWindow>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableDisplayWindow>,
+		Proxy<void, PluginRect *>::Func<&HDROutputPlugin::GetWindowRect>,
+		Proxy<PluginBool>::Func<&HDROutputPlugin::GetRequestHDR>,
+		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetRequestHDR>,
+		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,
 		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::Render>,
 	};
 

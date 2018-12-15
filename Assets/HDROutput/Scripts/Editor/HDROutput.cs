@@ -55,7 +55,7 @@ namespace HDROutput
 							break;
 					}
 				});
-			_plugin?.CreateDisplayWindow();
+			_plugin?.CreateDisplayWindow(null);
 		}
 
 		// Update is called once per frame
