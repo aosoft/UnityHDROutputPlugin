@@ -103,7 +103,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine,
 
 	plugin->SetD3D11Device(device);
 	plugin->SetDebugLogFunc(DebugLog);
-	plugin->CreateDisplayWindow();
+	plugin->CreateDisplayWindow(nullptr);
 
 	MSG msg;
 	while (plugin->IsAvailableDisplayWindow() == PluginBool::True)

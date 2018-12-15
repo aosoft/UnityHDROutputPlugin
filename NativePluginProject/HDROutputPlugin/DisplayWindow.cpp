@@ -14,7 +14,7 @@ void DisplayWindow::InitializeInstance(ID3D11Device *device, FnDebugLog fnDebugL
 
 	if (Create(
 		nullptr, ATL::CWindow::rcDefault,
-		L"Unity Preview", WS_OVERLAPPEDWINDOW | WS_VISIBLE) == nullptr)
+		L"Unity Preview", WS_OVERLAPPEDWINDOW) == nullptr)
 	{
 		HRException::CheckHR(HRESULT_FROM_WIN32(::GetLastError()));
 	}
@@ -69,7 +69,10 @@ LRESULT DisplayWindow::OnMove(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 {
 	if (_renderTarget != nullptr)
 	{
-		_renderTarget->InitializeSwapChainIfDisplayChanged();
+		if (_renderTarget->InitializeSwapChainIfDisplayChanged())
+		{
+			DrawAndPresent();
+		}
 	}
 	bHandled = TRUE;
 	return 0;
@@ -80,19 +83,7 @@ LRESULT DisplayWindow::OnSize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (_renderTarget != nullptr)
 	{
 		_renderTarget->ResizeBuffer();
-
-		ComPtr<ID3D11DeviceContext> dc;
-		_device->GetImmediateContext(&dc);
-
-		dc->ClearState();
-
-		if (_material != nullptr && _renderTarget != nullptr && _mesh != nullptr)
-		{
-			_material->Setup(dc);
-			_renderTarget->Setup(dc, _material->GetTextureDesc());
-			_mesh->Draw(dc);
-			_renderTarget->Present();
-		}
+		DrawAndPresent();
 	}
 
 	bHandled = TRUE;

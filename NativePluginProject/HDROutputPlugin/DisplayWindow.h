@@ -40,6 +40,21 @@ private:
 public:
 	static std::shared_ptr<DisplayWindow> CreateInstance(ID3D11Device *device, FnDebugLog fnDebugLog);
 
+	bool GetRequestHDR() const
+	{
+		return _renderTarget->GetRequestHDR();
+	}
+
+	void SetRequestHDR(bool flag)
+	{
+		_renderTarget->SetRequestHDR(flag);
+	}
+
+	bool IsAvailableHDR() const
+	{
+		return _renderTarget->IsAvailableHDR();
+	}
+
 	void Render(ComPtr<ID3D11Texture2D> const& source);
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/) override;

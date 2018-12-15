@@ -10,6 +10,17 @@ enum class PluginBool : int32_t
 	True
 };
 
+constexpr PluginBool ToPluginBool(bool f)
+{
+	return f ? PluginBool::True : PluginBool::False;
+}
+
+constexpr bool FromPluginBool(PluginBool f)
+{
+	return f != PluginBool::False;
+}
+
+
 enum class PluginLogType : int32_t
 {
 	Information = 0,
@@ -17,6 +28,17 @@ enum class PluginLogType : int32_t
 	Error,
 };
 
+#pragma pack(push, 4)
+
+struct PluginRect
+{
+	int32_t X;
+	int32_t Y;
+	int32_t Width;
+	int32_t Height;
+};
+
+#pragma pack(pop)
 
 using FnDebugLog = void(UNITY_INTERFACE_API *)(PluginLogType, const wchar_t *);
 
@@ -25,8 +47,13 @@ class IHDROutputPlugin
 public:
 	virtual void Destroy() = 0;
 	virtual void SetDebugLogFunc(FnDebugLog fnDebugLog) = 0;
-	virtual void CreateDisplayWindow() = 0;
+	virtual void CreateDisplayWindow(const PluginRect *initialPosition) = 0;
 	virtual PluginBool IsAvailableDisplayWindow() = 0;
+	virtual void GetWindowRect(PluginRect *retRect) = 0;
+
+	virtual PluginBool GetRequestHDR() = 0;
+	virtual void SetRequestHDR(PluginBool flag) = 0;
+	virtual PluginBool IsAvailableHDR() = 0;
 	virtual void Render(IUnknown *src) = 0;
 
 	//	for TestApp
