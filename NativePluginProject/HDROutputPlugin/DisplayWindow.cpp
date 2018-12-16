@@ -66,8 +66,8 @@ void DisplayWindow::Render(ComPtr<ID3D11Texture2D> const& source)
 
 void DisplayWindow::OnFinalMessage(_In_ HWND /*hWnd*/)
 {
-	StateChangedCallback(PluginStateChanged::WindowClosed);
 	_this = nullptr;
+	StateChangedCallback(PluginStateChanged::WindowClosed);
 }
 
 

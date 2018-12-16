@@ -47,7 +47,7 @@ void HDROutputPlugin::CreateDisplayWindow(const PluginRect *initialPosition) try
 		}
 	}
 
-	auto w = DisplayWindow::CreateInstance(device, _fnDebugLog, nullptr);
+	auto w = DisplayWindow::CreateInstance(device, _fnDebugLog, _fnStateChangedCallback);
 	if (initialPosition != nullptr)
 	{
 		RECT rect2 =

@@ -14,7 +14,7 @@ namespace HDROutput
 #endif
 
 		private HDROutputPlugin _plugin = null;
-		private bool _requestCreateWindow = false;
+		private bool _requestCloseWindow = false;
 
 		[SerializeField]
 		private RenderTexture _renderTexture;
@@ -28,6 +28,8 @@ namespace HDROutput
 		private void OnEnable()
 		{
 			InitializePlugin();
+			_plugin?.SetCallbacks(OnDebugLog, OnPluginStateChanged);
+			_plugin?.CreateDisplayWindow(null);
 		}
 
 		private void OnDisable()
@@ -40,33 +42,49 @@ namespace HDROutput
 			EditorGUI.BeginChangeCheck();
 
 			EditorGUILayout.LabelField("HDR Display Output");
-			if (GUILayout.Button("Show Window"))
-			{
-				if (!(_plugin?.IsAvailableDisplayWindow).GetValueOrDefault(false))
-				{
-					_requestCreateWindow = true;
-				}
-			}
 
 			if (EditorGUI.EndChangeCheck())
 			{
 				//	property changed
 			}
-		}
 
-		private void Update()
-		{
-			if (_requestCreateWindow)
+			if (_requestCloseWindow)
 			{
-				_plugin?.CreateDisplayWindow(null);
-				_requestCreateWindow = false;
-				Repaint();
+				Close();
 			}
 		}
 
-		private IEnumerable CreateDisplayWindow()
+		private void OnDebugLog(PluginLogType logtype, string msg)
 		{
-			yield return new WaitForEndOfFrame();
+			switch (logtype)
+			{
+				case PluginLogType.Information:
+					Debug.Log(msg);
+					break;
+
+				case PluginLogType.Warning:
+					Debug.LogWarning(msg);
+					break;
+
+				case PluginLogType.Error:
+					Debug.LogError(msg);
+					break;
+			}
+		}
+
+		private void OnPluginStateChanged(PluginStateChanged state)
+		{
+			switch (state)
+			{
+				case PluginStateChanged.WindowClosed:
+					_requestCloseWindow = true;
+					Repaint();
+					break;
+
+				case PluginStateChanged.CurrentHDRState:
+					Repaint();
+					break;
+			}
 		}
 
 		private void InitializePlugin()
@@ -89,34 +107,5 @@ namespace HDROutput
 #endif
 		}
 
-		private void SetCallbacks(bool regist)
-		{
-			if (regist)
-			{
-				_plugin?.SetCallbacks(
-					(logtype, msg) =>
-					{
-						switch (logtype)
-						{
-							case PluginLogType.Information:
-								Debug.Log(msg);
-								break;
-
-							case PluginLogType.Warning:
-								Debug.LogWarning(msg);
-								break;
-
-							case PluginLogType.Error:
-								Debug.LogError(msg);
-								break;
-						}
-					},
-					null);
-			}
-			else
-			{
-				_plugin?.SetCallbacks(null, null);
-			}
-		}
 	}
 }
