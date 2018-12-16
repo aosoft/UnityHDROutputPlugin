@@ -10,6 +10,7 @@ class HDROutputPlugin :
 private:
 	std::weak_ptr<DisplayWindow> _window;
 	FnDebugLog _fnDebugLog;
+	FnStateChangedCallback _fnStateChangedCallback;
 	ComPtr<ID3D11Device> _device;
 
 public:
@@ -17,7 +18,7 @@ public:
 	~HDROutputPlugin();
 
 	virtual void Destroy() override;
-	virtual void SetDebugLogFunc(FnDebugLog fnDebugLog) override;
+	virtual void SetCallbacks(FnDebugLog fnDebugLog, FnStateChangedCallback fnStateChangedCallback) override;
 	virtual void CreateDisplayWindow(const PluginRect *initialPosition) override;
 	virtual PluginBool IsAvailableDisplayWindow() override;
 	virtual void GetWindowRect(PluginRect *retRect) override;

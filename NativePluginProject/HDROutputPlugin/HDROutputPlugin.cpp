@@ -3,7 +3,9 @@
 
 IUnityInterfaces *g_unityInterfaces = nullptr;
 
-HDROutputPlugin::HDROutputPlugin()
+HDROutputPlugin::HDROutputPlugin() :
+	_fnDebugLog(nullptr),
+	_fnStateChangedCallback(nullptr)
 {
 }
 
@@ -21,13 +23,19 @@ void HDROutputPlugin::Destroy()
 	delete this;
 }
 
-void HDROutputPlugin::SetDebugLogFunc(FnDebugLog fnDebugLog)
+void HDROutputPlugin::SetCallbacks(FnDebugLog fnDebugLog, FnStateChangedCallback fnStateChangedCallback)
 {
 	_fnDebugLog = fnDebugLog;
+	_fnStateChangedCallback = fnStateChangedCallback;
 }
 
 void HDROutputPlugin::CreateDisplayWindow(const PluginRect *initialPosition) try
 {
+	if (!_window.expired())
+	{
+		return;
+	}
+
 	auto device = _device;
 
 	if (device == nullptr && g_unityInterfaces != nullptr)
@@ -173,7 +181,7 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 	static const void_ptr funcs[] =
 	{
 		Proxy<void>::Func<&HDROutputPlugin::Destroy>,
-		Proxy<void, FnDebugLog>::Func<&HDROutputPlugin::SetDebugLogFunc>,
+		Proxy<void, FnDebugLog, FnStateChangedCallback>::Func<&HDROutputPlugin::SetCallbacks>,
 		Proxy<void, const PluginRect *>::Func<&HDROutputPlugin::CreateDisplayWindow>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableDisplayWindow>,
 		Proxy<void, PluginRect *>::Func<&HDROutputPlugin::GetWindowRect>,

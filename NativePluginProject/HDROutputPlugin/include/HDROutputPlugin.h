@@ -28,6 +28,13 @@ enum class PluginLogType : int32_t
 	Error,
 };
 
+enum class PluginStateChanged : int32_t
+{
+	Unspecified = 0,
+	WindowClosed,
+	CurrentHDRState,
+};
+
 #pragma pack(push, 4)
 
 struct PluginRect
@@ -41,12 +48,13 @@ struct PluginRect
 #pragma pack(pop)
 
 using FnDebugLog = void(UNITY_INTERFACE_API *)(PluginLogType, const wchar_t *);
+using FnStateChangedCallback = void(UNITY_INTERFACE_API *)(PluginStateChanged);
 
 class IHDROutputPlugin
 {
 public:
 	virtual void Destroy() = 0;
-	virtual void SetDebugLogFunc(FnDebugLog fnDebugLog) = 0;
+	virtual void SetCallbacks(FnDebugLog fnDebugLog, FnStateChangedCallback fnStateChangedCallback) = 0;
 	virtual void CreateDisplayWindow(const PluginRect *initialPosition) = 0;
 	virtual PluginBool IsAvailableDisplayWindow() = 0;
 	virtual void GetWindowRect(PluginRect *retRect) = 0;

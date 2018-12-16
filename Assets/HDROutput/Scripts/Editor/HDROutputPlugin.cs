@@ -10,6 +10,13 @@ namespace HDROutput
 		Error,
 	}
 
+	public enum PluginStateChanged : int
+	{
+		Unspecified = 0,
+		WindowClosed,
+		CurrentHDRState,
+	};
+
 	internal enum PluginBool : int
 	{
 		False = 0,
@@ -30,6 +37,9 @@ namespace HDROutput
 	[UnmanagedFunctionPointer(CallingConvention.Winapi, CharSet = CharSet.Unicode)]
 	public delegate void FnDebugLog(PluginLogType logtype, string msg);
 
+	[UnmanagedFunctionPointer(CallingConvention.Winapi, CharSet = CharSet.Unicode)]
+	public delegate void FnStateChangedCallback(PluginStateChanged state);
+
 	public class HDROutputPlugin : IDisposable
 	{
 		private delegate void FnAction(IntPtr self);
@@ -38,13 +48,13 @@ namespace HDROutput
 
 		private delegate void FnCreateDisplayWindow(IntPtr self, [In] ref PluginRect rect);
 		private delegate void FnCreateDisplayWindowPtr(IntPtr self, IntPtr rect);
-		private delegate void FnSetDebugLogFunc(IntPtr self, IntPtr fnDebugLog);
+		private delegate void FnSetCallbacks(IntPtr self, IntPtr fnDebugLog, IntPtr fnStateChangedCallback);
 		private delegate void FnGetWindowRect(IntPtr self, out PluginRect rect);
 		private delegate void FnRender(IntPtr self, IntPtr texture);
 
 		private IntPtr _self;
 		private FnAction _fnDestroy;
-		private FnSetDebugLogFunc _fnSetDebugLogFunc;
+		private FnSetCallbacks _fnSetCallbacks;
 		private FnCreateDisplayWindow _fnCreateDisplayWindow;
 		private FnCreateDisplayWindowPtr _fnCreateDisplayWindowPtr;
 		private FnGetFlag _fnIsAvailableDisplayWindow;
@@ -65,7 +75,7 @@ namespace HDROutput
 
 			_self = buffer[0];
 			_fnDestroy = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[1]);
-			_fnSetDebugLogFunc = Marshal.GetDelegateForFunctionPointer<FnSetDebugLogFunc>(buffer[2]);
+			_fnSetCallbacks = Marshal.GetDelegateForFunctionPointer<FnSetCallbacks>(buffer[2]);
 			_fnCreateDisplayWindow = Marshal.GetDelegateForFunctionPointer<FnCreateDisplayWindow>(buffer[3]);
 			_fnCreateDisplayWindowPtr = Marshal.GetDelegateForFunctionPointer<FnCreateDisplayWindowPtr>(buffer[3]);
 			_fnIsAvailableDisplayWindow = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[4]);
@@ -101,16 +111,17 @@ namespace HDROutput
 			}
 		}
 
-		public void SetDebugLogFunc(FnDebugLog fnDebugLogFunc)
+		public void SetCallbacks(FnDebugLog fnDebugLogFunc, FnStateChangedCallback fnStateChangedCallback)
 		{
-			if (fnDebugLogFunc != null)
-			{
-				_fnSetDebugLogFunc(_self, Marshal.GetFunctionPointerForDelegate<FnDebugLog>(fnDebugLogFunc));
-			}
-			else
-			{
-				_fnSetDebugLogFunc(_self, IntPtr.Zero);
-			}
+			var pfnDebugLogFunc = fnDebugLogFunc != null ?
+				Marshal.GetFunctionPointerForDelegate<FnDebugLog>(fnDebugLogFunc) :
+				IntPtr.Zero;
+
+			var pfnStateChangedCallback = fnStateChangedCallback != null ?
+				Marshal.GetFunctionPointerForDelegate<FnStateChangedCallback>(fnStateChangedCallback) :
+				IntPtr.Zero;
+
+			_fnSetCallbacks(_self, pfnDebugLogFunc, pfnStateChangedCallback);
 		}
 
 		public bool IsAvailableDisplayWindow
