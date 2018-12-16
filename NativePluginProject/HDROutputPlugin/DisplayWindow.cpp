@@ -5,12 +5,16 @@ DisplayWindow::DisplayWindow()
 {
 }
 
-void DisplayWindow::InitializeInstance(ID3D11Device *device, FnDebugLog fnDebugLog)
+void DisplayWindow::InitializeInstance(
+	ID3D11Device *device,
+	FnDebugLog fnDebugLog,
+	FnStateChangedCallback fnStateChangedCallback)
 {
 	HRException::CheckNull(device);
 
 	_device = device;
 	_fnDebugLog = fnDebugLog;
+	_fnStateChangedCallback = fnStateChangedCallback;
 
 	if (Create(
 		nullptr, ATL::CWindow::rcDefault,
@@ -24,16 +28,30 @@ void DisplayWindow::InitializeInstance(ID3D11Device *device, FnDebugLog fnDebugL
 	_renderTarget = std::make_unique<RenderTarget>(m_hWnd, _device);
 }
 
-std::shared_ptr<DisplayWindow> DisplayWindow::CreateInstance(ID3D11Device *device, FnDebugLog fnDebugLog)
+std::shared_ptr<DisplayWindow> DisplayWindow::CreateInstance(
+	ID3D11Device *device,
+	FnDebugLog fnDebugLog,
+	FnStateChangedCallback fnStateChangedCallback)
 {
 	struct DisplayWindowImpl : DisplayWindow
 	{
 	};
 
 	auto ret = std::make_shared<DisplayWindowImpl>();
-	ret->InitializeInstance(device, fnDebugLog);
+	ret->InitializeInstance(device, fnDebugLog, fnStateChangedCallback);
 	return ret;
 }
+
+void DisplayWindow::SetRequestHDR(bool flag)
+{
+	bool hdr = _renderTarget->IsAvailableHDR();
+	_renderTarget->SetRequestHDR(flag);
+	if (hdr != _renderTarget->IsAvailableHDR())
+	{
+		StateChangedCallback(PluginStateChanged::CurrentHDRState);
+	}
+}
+
 
 void DisplayWindow::Render(ComPtr<ID3D11Texture2D> const& source)
 {
@@ -48,6 +66,7 @@ void DisplayWindow::Render(ComPtr<ID3D11Texture2D> const& source)
 
 void DisplayWindow::OnFinalMessage(_In_ HWND /*hWnd*/)
 {
+	StateChangedCallback(PluginStateChanged::WindowClosed);
 	_this = nullptr;
 }
 

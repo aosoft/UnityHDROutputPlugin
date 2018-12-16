@@ -19,6 +19,7 @@ private:
 	std::shared_ptr<DisplayWindow> _this;
 
 	FnDebugLog _fnDebugLog;
+	FnStateChangedCallback _fnStateChangedCallback;
 	ComPtr<ID3D11Device> _device;
 
 	std::unique_ptr<Mesh> _mesh;
@@ -35,20 +36,23 @@ public:
 
 private:
 	DisplayWindow();
-	void InitializeInstance(ID3D11Device *device, FnDebugLog fnDebugLog);
+	void InitializeInstance(
+		ID3D11Device *device,
+		FnDebugLog fnDebugLog,
+		FnStateChangedCallback fnStateChangedCallback);
 
 public:
-	static std::shared_ptr<DisplayWindow> CreateInstance(ID3D11Device *device, FnDebugLog fnDebugLog);
+	static std::shared_ptr<DisplayWindow> CreateInstance(
+		ID3D11Device *device,
+		FnDebugLog fnDebugLog,
+		FnStateChangedCallback fnStateChangedCallback);
 
 	bool GetRequestHDR() const
 	{
 		return _renderTarget->GetRequestHDR();
 	}
 
-	void SetRequestHDR(bool flag)
-	{
-		_renderTarget->SetRequestHDR(flag);
-	}
+	void SetRequestHDR(bool flag);
 
 	bool IsAvailableHDR() const
 	{
@@ -66,6 +70,14 @@ public:
 
 private:
 	void DrawAndPresent();
+
+	void StateChangedCallback(PluginStateChanged state)
+	{
+		if (_fnStateChangedCallback != nullptr)
+		{
+			_fnStateChangedCallback(state);
+		}
+	}
 };
 
 inline void ErrorLog(FnDebugLog fnDebugLog, const std::exception& e)
