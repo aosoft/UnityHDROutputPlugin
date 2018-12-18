@@ -15,6 +15,7 @@
 #include <d3d11.h>
 #include <dxgi1_4.h>
 #include <IUnityInterface.h>
+#include <IUnityGraphics.h>
 #include <IUnityGraphicsD3D11.h>
 
 #include <atlbase.h>

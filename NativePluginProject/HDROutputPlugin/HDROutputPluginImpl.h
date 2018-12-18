@@ -12,6 +12,7 @@ private:
 	FnDebugLog _fnDebugLog;
 	FnStateChangedCallback _fnStateChangedCallback;
 	ComPtr<ID3D11Device> _device;
+	bool _asyncRender;
 
 public:
 	HDROutputPlugin();
@@ -26,7 +27,12 @@ public:
 	virtual PluginBool GetRequestHDR() override;
 	virtual void SetRequestHDR(PluginBool flag) override;
 	virtual PluginBool IsAvailableHDR() override;
-	virtual void Render(IUnknown *src) override;
+	virtual void SetSourceTexture(IUnknown *src) override;
+	virtual void RenderDirect() override;
+
+	virtual void *RenderAsync() override;
 
 	virtual void SetD3D11Device(ID3D11Device *device) override;
+
+	void RenderForUnityRenderingEvent();
 };

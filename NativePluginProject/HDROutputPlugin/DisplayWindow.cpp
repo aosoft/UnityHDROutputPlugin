@@ -48,20 +48,27 @@ void DisplayWindow::SetRequestHDR(bool flag)
 	_renderTarget->SetRequestHDR(flag);
 	if (hdr != _renderTarget->IsAvailableHDR())
 	{
-		StateChangedCallback(PluginStateChanged::CurrentHDRState);
+		StateChangedCallback(PluginStateChanged::CurrentHDRStateChanged);
 	}
 }
 
 
-void DisplayWindow::Render(ComPtr<ID3D11Texture2D> const& source)
+void DisplayWindow::SetSourceTexture(ComPtr<ID3D11Texture2D> const& source)
 {
-	if (_device == nullptr)
-	{
-		return;
-	}
-
 	_material->SetTexture(source);
-	DrawAndPresent();
+}
+
+void DisplayWindow::Render()
+{
+	ComPtr<ID3D11DeviceContext> dc;
+	_device->GetImmediateContext(&dc);
+
+	dc->ClearState();
+
+	_material->Setup(dc);
+	_renderTarget->Setup(dc, _material->GetTextureDesc());
+	_mesh->Draw(dc);
+	_renderTarget->Present();
 }
 
 void DisplayWindow::OnFinalMessage(_In_ HWND /*hWnd*/)
@@ -88,9 +95,13 @@ LRESULT DisplayWindow::OnMove(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 {
 	if (_renderTarget != nullptr)
 	{
+		bool hdr = _renderTarget->IsAvailableHDR();
 		if (_renderTarget->InitializeSwapChainIfDisplayChanged())
 		{
-			DrawAndPresent();
+			if (hdr != _renderTarget->IsAvailableHDR())
+			{
+				StateChangedCallback(PluginStateChanged::CurrentHDRStateChanged);
+			}
 		}
 	}
 	bHandled = TRUE;
@@ -102,7 +113,7 @@ LRESULT DisplayWindow::OnSize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (_renderTarget != nullptr)
 	{
 		_renderTarget->ResizeBuffer();
-		DrawAndPresent();
+		StateChangedCallback(PluginStateChanged::WindowSizeChanged);
 	}
 
 	bHandled = TRUE;
@@ -112,17 +123,4 @@ catch (const std::exception& e)
 {
 	ErrorLog(_fnDebugLog, e);
 	return 0;
-}
-
-void DisplayWindow::DrawAndPresent()
-{
-	ComPtr<ID3D11DeviceContext> dc;
-	_device->GetImmediateContext(&dc);
-
-	dc->ClearState();
-
-	_material->Setup(dc);
-	_renderTarget->Setup(dc, _material->GetTextureDesc());
-	_mesh->Draw(dc);
-	_renderTarget->Present();
 }

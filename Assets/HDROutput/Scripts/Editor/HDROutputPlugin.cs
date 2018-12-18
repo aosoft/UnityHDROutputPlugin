@@ -13,8 +13,9 @@ namespace HDROutput
 	public enum PluginStateChanged : int
 	{
 		Unspecified = 0,
+		WindowSizeChanged,
 		WindowClosed,
-		CurrentHDRState,
+		CurrentHDRStateChanged,
 	};
 
 	internal enum PluginBool : int
@@ -50,7 +51,8 @@ namespace HDROutput
 		private delegate void FnCreateDisplayWindowPtr(IntPtr self, IntPtr rect);
 		private delegate void FnSetCallbacks(IntPtr self, IntPtr fnDebugLog, IntPtr fnStateChangedCallback);
 		private delegate void FnGetWindowRect(IntPtr self, out PluginRect rect);
-		private delegate void FnRender(IntPtr self, IntPtr texture);
+		private delegate void FnSetSourceTexture(IntPtr self, IntPtr texture);
+		private delegate IntPtr FnRenderAsync(IntPtr self);
 
 		private IntPtr _self;
 		private FnAction _fnDestroy;
@@ -62,7 +64,9 @@ namespace HDROutput
 		private FnGetFlag _fnGetRequestHDR;
 		private FnSetFlag _fnSetRequestHDR;
 		private FnGetFlag _fnIsAvailableHDR;
-		private FnRender _fnRender;
+		private FnSetSourceTexture _fnSetSourceTexture;
+		private FnAction _fnRenderDirect;
+		private FnRenderAsync _fnRenderAsync;
 
 		public HDROutputPlugin(FnCreateHDROutputPluginInstance fnCreateHDROutputPluginInstance)
 		{
@@ -83,7 +87,9 @@ namespace HDROutput
 			_fnGetRequestHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[6]);
 			_fnSetRequestHDR = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[7]);
 			_fnIsAvailableHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[8]);
-			_fnRender = Marshal.GetDelegateForFunctionPointer<FnRender>(buffer[9]);
+			_fnSetSourceTexture = Marshal.GetDelegateForFunctionPointer<FnSetSourceTexture>(buffer[9]);
+			_fnRenderDirect = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[10]);
+			_fnRenderAsync = Marshal.GetDelegateForFunctionPointer<FnRenderAsync>(buffer[11]);
 		}
 
 		public void Dispose()
@@ -161,9 +167,19 @@ namespace HDROutput
 			}
 		}
 
-		public void Render(IntPtr texture)
+		public void SetSourceTexture(IntPtr texture)
 		{
-			_fnRender(_self, texture);
+			_fnSetSourceTexture(_self, texture);
+		}
+
+		public void RenderDirect()
+		{
+			_fnRenderDirect(_self);
+		}
+
+		public void RenderAsync()
+		{
+			UnityEngine.GL.IssuePluginEvent(_fnRenderAsync(_self), 0);
 		}
 	}
 

@@ -28,9 +28,31 @@ public:
 	}
 };
 
+IHDROutputPlugin *g_plugin = nullptr;
+
 void UNITY_INTERFACE_API DebugLog(PluginLogType logtype, const wchar_t *msg)
 {
 	::MessageBoxW(nullptr, msg, L"DebugLog", MB_OK | MB_ICONERROR | MB_TOPMOST);
+}
+
+void UNITY_INTERFACE_API StateChangedCallback(PluginStateChanged state)
+{
+	switch (state)
+	{
+	case PluginStateChanged::WindowSizeChanged:
+		if (g_plugin != nullptr)
+		{
+			g_plugin->RenderDirect();
+		}
+		break;
+
+	case PluginStateChanged::CurrentHDRStateChanged:
+		if (g_plugin != nullptr)
+		{
+			g_plugin->RenderDirect();
+		}
+		break;
+	}
 }
 
 ComPtr<ID3D11Texture2D> CreateSampleTexture(
@@ -98,29 +120,28 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine,
 	v.resize(count);
 	count = CreateHDROutputPluginInstance(&v[0], count);
 
-	IHDROutputPlugin *plugin = reinterpret_cast<IHDROutputPlugin *>(v[0]);
+	g_plugin = reinterpret_cast<IHDROutputPlugin *>(v[0]);
 
 
-	plugin->SetD3D11Device(device);
-	plugin->SetCallbacks(DebugLog, nullptr);
-	plugin->CreateDisplayWindow(nullptr);
+	g_plugin->SetD3D11Device(device);
+	g_plugin->SetCallbacks(DebugLog, StateChangedCallback);
+	g_plugin->CreateDisplayWindow(nullptr);
+
+	g_plugin->SetSourceTexture(texture);
+	g_plugin->RenderDirect();
 
 	MSG msg;
-	while (plugin->IsAvailableDisplayWindow() == PluginBool::True)
+	while (g_plugin->IsAvailableDisplayWindow() == PluginBool::True)
 	{
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		if (GetMessage(&msg, 0, 0, 0))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else
-		{
-			plugin->Render(texture);
-		}
 	}
 
 	dc->ClearState();
-	plugin->Destroy();
+	g_plugin->Destroy();
 
 	texture = nullptr;
 	dc = nullptr;

@@ -17,7 +17,7 @@ namespace HDROutput
 		private bool _requestCloseWindow = false;
 
 		[SerializeField]
-		private RenderTexture _renderTexture;
+		private Texture _texture;
 
 		[MenuItem("Window/HDR Display Output")]
 		public static void Open()
@@ -29,7 +29,6 @@ namespace HDROutput
 		{
 			InitializePlugin();
 			_plugin?.SetCallbacks(OnDebugLog, OnPluginStateChanged);
-			_plugin?.CreateDisplayWindow(null);
 		}
 
 		private void OnDisable()
@@ -39,18 +38,41 @@ namespace HDROutput
 
 		private void OnGUI()
 		{
+			if (_plugin == null)
+			{
+				return;
+			}
+
 			EditorGUI.BeginChangeCheck();
 
 			EditorGUILayout.LabelField("HDR Display Output");
+			if (GUILayout.Button("Open Window"))
+			{
+				if (!_plugin.IsAvailableDisplayWindow)
+				{
+					_plugin.CreateDisplayWindow(null);
+				}
+			}
+
+			_texture = EditorGUILayout.ObjectField("Source Texture", _texture, typeof(Texture), true) as Texture;
 
 			if (EditorGUI.EndChangeCheck())
 			{
 				//	property changed
+				_plugin.SetSourceTexture(_texture != null ? _texture.GetNativeTexturePtr() : System.IntPtr.Zero);
 			}
 
 			if (_requestCloseWindow)
 			{
 				Close();
+			}
+		}
+
+		private void Update()
+		{
+			if (_texture != null)
+			{
+				_plugin?.RenderAsync();
 			}
 		}
 
@@ -76,12 +98,11 @@ namespace HDROutput
 		{
 			switch (state)
 			{
-				case PluginStateChanged.WindowClosed:
-					_requestCloseWindow = true;
-					Repaint();
+				case PluginStateChanged.WindowSizeChanged:
+					//_plugin?.RenderAsync();
 					break;
 
-				case PluginStateChanged.CurrentHDRState:
+				case PluginStateChanged.CurrentHDRStateChanged:
 					Repaint();
 					break;
 			}

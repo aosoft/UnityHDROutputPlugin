@@ -59,7 +59,9 @@ public:
 		return _renderTarget->IsAvailableHDR();
 	}
 
-	void Render(ComPtr<ID3D11Texture2D> const& source);
+	void SetSourceTexture(ComPtr<ID3D11Texture2D> const& source);
+
+	void Render();
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/) override;
 
@@ -69,7 +71,6 @@ public:
 	LRESULT OnSize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
-	void DrawAndPresent();
 
 	void StateChangedCallback(PluginStateChanged state)
 	{

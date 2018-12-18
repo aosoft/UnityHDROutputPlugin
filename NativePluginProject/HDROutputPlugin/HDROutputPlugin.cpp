@@ -1,11 +1,22 @@
 ﻿#include "stdafx.h"
 #include "HDROutputPluginImpl.h"
+#include <vector>
 
 IUnityInterfaces *g_unityInterfaces = nullptr;
+static std::vector<HDROutputPlugin *> g_plugins;
+
+void UNITY_INTERFACE_API OnUnityRenderingEvent(int eventId)
+{
+	for (auto it = g_plugins.begin(); it != g_plugins.end(); it++)
+	{
+		(*it)->RenderDirect();
+	}
+}
 
 HDROutputPlugin::HDROutputPlugin() :
 	_fnDebugLog(nullptr),
-	_fnStateChangedCallback(nullptr)
+	_fnStateChangedCallback(nullptr),
+	_asyncRender(false)
 {
 }
 
@@ -20,6 +31,14 @@ HDROutputPlugin::~HDROutputPlugin()
 
 void HDROutputPlugin::Destroy()
 {
+	for (auto it = g_plugins.begin(); it != g_plugins.end(); it++)
+	{
+		if (this == *it)
+		{
+			g_plugins.erase(it);
+			break;
+		}
+	}
 	delete this;
 }
 
@@ -129,7 +148,7 @@ PluginBool HDROutputPlugin::IsAvailableHDR()
 	return ToPluginBool(w != nullptr && w->IsAvailableHDR());
 }
 
-void HDROutputPlugin::Render(IUnknown *src) try
+void HDROutputPlugin::SetSourceTexture(IUnknown *src) try
 {
 	auto w = _window.lock();
 	if (w != nullptr)
@@ -142,7 +161,7 @@ void HDROutputPlugin::Render(IUnknown *src) try
 				texture = nullptr;
 			}
 		}
-		w->Render(texture);
+		w->SetSourceTexture(texture);
 	}
 }
 catch (const std::exception& e)
@@ -150,12 +169,39 @@ catch (const std::exception& e)
 	ErrorLog(_fnDebugLog, e);
 }
 
+void HDROutputPlugin::RenderDirect() try
+{
+	auto w = _window.lock();
+	if (w != nullptr)
+	{
+		w->Render();
+	}
+}
+catch (const std::exception& e)
+{
+	ErrorLog(_fnDebugLog, e);
+}
+
+void *HDROutputPlugin::RenderAsync()
+{
+	_asyncRender = true;
+	return OnUnityRenderingEvent;
+}
+
+
 void HDROutputPlugin::SetD3D11Device(ID3D11Device *device)
 {
 	_device = device;
 }
 
-
+void HDROutputPlugin::RenderForUnityRenderingEvent()
+{
+	if (_asyncRender)
+	{
+		RenderDirect();
+		_asyncRender = false;
+	}
+}
 
 
 template<typename RetT, typename ... Args>
@@ -188,7 +234,9 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetRequestHDR>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetRequestHDR>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,
-		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::Render>,
+		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::SetSourceTexture>,
+		Proxy<void>::Func<&HDROutputPlugin::RenderDirect>,
+		Proxy<void *>::Func<&HDROutputPlugin::RenderAsync>,
 	};
 
 	static constexpr int32_t requiredSize = sizeof(funcs) / sizeof(void *) + 1;
@@ -203,13 +251,16 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		return 0;
 	}
 
-	buffer[0] = new HDROutputPlugin();
+	auto plugin = new HDROutputPlugin();
+	buffer[0] = plugin;
 	int32_t index = 1;
 	for (auto p : funcs)
 	{
 		buffer[index] = p;
 		index++;
 	}
+
+	g_plugins.push_back(plugin);
 
 	return requiredSize;
 }

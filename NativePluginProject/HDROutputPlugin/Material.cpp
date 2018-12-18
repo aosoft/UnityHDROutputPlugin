@@ -30,7 +30,7 @@ void Material::SetTexture(ComPtr<ID3D11Texture2D> const& texture)
 
 		_device->CreateShaderResourceView(
 			texture,
-			nullptr,//&CD3D11_SHADER_RESOURCE_VIEW_DESC(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R8G8B8A8_UNORM),
+			&CD3D11_SHADER_RESOURCE_VIEW_DESC(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R8G8B8A8_UNORM),
 			&_srv);
 		_texture = texture;
 
