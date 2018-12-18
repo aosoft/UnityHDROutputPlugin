@@ -33,7 +33,7 @@ enum class PluginStateChanged : int32_t
 {
 	Unspecified = 0,
 	WindowSizeChanged,
-	WindowClosed,
+	WindowClosing,
 	CurrentHDRStateChanged,
 };
 

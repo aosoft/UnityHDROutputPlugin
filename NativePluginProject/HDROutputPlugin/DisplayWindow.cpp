@@ -74,13 +74,20 @@ void DisplayWindow::Render()
 void DisplayWindow::OnFinalMessage(_In_ HWND /*hWnd*/)
 {
 	_this = nullptr;
-	StateChangedCallback(PluginStateChanged::WindowClosed);
 }
 
 
 LRESULT DisplayWindow::OnCreate(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	_this = shared_from_this();
+	bHandled = TRUE;
+	return 0;
+}
+
+LRESULT DisplayWindow::OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	StateChangedCallback(PluginStateChanged::WindowClosing);
+	DestroyWindow();
 	bHandled = TRUE;
 	return 0;
 }

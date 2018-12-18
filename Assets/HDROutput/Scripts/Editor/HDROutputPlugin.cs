@@ -14,7 +14,7 @@ namespace HDROutput
 	{
 		Unspecified = 0,
 		WindowSizeChanged,
-		WindowClosed,
+		WindowClosing,
 		CurrentHDRStateChanged,
 	};
 

@@ -14,10 +14,12 @@ namespace HDROutput
 #endif
 
 		private HDROutputPlugin _plugin = null;
-		private bool _requestCloseWindow = false;
 
 		[SerializeField]
 		private Texture _texture;
+
+		[SerializeField]
+		UnityEngine.RectInt? _previewWindowRect = null;
 
 		[MenuItem("Window/HDR Display Output")]
 		public static void Open()
@@ -50,7 +52,7 @@ namespace HDROutput
 			{
 				if (!_plugin.IsAvailableDisplayWindow)
 				{
-					_plugin.CreateDisplayWindow(null);
+					_plugin.CreateDisplayWindow(_previewWindowRect);
 				}
 			}
 
@@ -62,10 +64,6 @@ namespace HDROutput
 				_plugin.SetSourceTexture(_texture != null ? _texture.GetNativeTexturePtr() : System.IntPtr.Zero);
 			}
 
-			if (_requestCloseWindow)
-			{
-				Close();
-			}
 		}
 
 		private void Update()
@@ -100,6 +98,13 @@ namespace HDROutput
 			{
 				case PluginStateChanged.WindowSizeChanged:
 					//_plugin?.RenderAsync();
+					break;
+
+				case PluginStateChanged.WindowClosing:
+					if (_plugin != null)
+					{
+						_previewWindowRect = _plugin.GetWindowRect();
+					}
 					break;
 
 				case PluginStateChanged.CurrentHDRStateChanged:
