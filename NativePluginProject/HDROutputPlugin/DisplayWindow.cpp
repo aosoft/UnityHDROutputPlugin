@@ -87,8 +87,7 @@ LRESULT DisplayWindow::OnCreate(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bH
 LRESULT DisplayWindow::OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	StateChangedCallback(PluginStateChanged::WindowClosing);
-	DestroyWindow();
-	bHandled = TRUE;
+	bHandled = FALSE;
 	return 0;
 }
 
