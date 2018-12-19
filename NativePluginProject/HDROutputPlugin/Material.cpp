@@ -13,8 +13,8 @@ Material::Material(ComPtr<ID3D11Device> const& device) :
 
 	_layout = MeshVertex::CreateInputLayout(device, g_shaderbin_vs, sizeof(g_shaderbin_vs));
 	HRException::CheckHR(device->CreateVertexShader(g_shaderbin_vs, sizeof(g_shaderbin_vs), nullptr, &_vs));
-	//HRException::CheckHR(device->CreatePixelShader(g_shaderbin_ps_Through, sizeof(g_shaderbin_ps_Through), nullptr, &_ps));
-	HRException::CheckHR(device->CreatePixelShader(g_shaderbin_ps_LinearToSRGB, sizeof(g_shaderbin_ps_LinearToSRGB), nullptr, &_ps));
+	HRException::CheckHR(device->CreatePixelShader(g_shaderbin_ps_Through, sizeof(g_shaderbin_ps_Through), nullptr, &_ps));
+	//HRException::CheckHR(device->CreatePixelShader(g_shaderbin_ps_LinearToSRGB, sizeof(g_shaderbin_ps_LinearToSRGB), nullptr, &_ps));
 
 	HRException::CheckHR(device->CreateSamplerState(&CD3D11_SAMPLER_DESC(CD3D11_DEFAULT()), &_sampler));
 	HRException::CheckHR(device->CreateBlendState(&CD3D11_BLEND_DESC(CD3D11_DEFAULT()), &_blend));
@@ -31,10 +31,94 @@ void Material::SetTexture(ComPtr<ID3D11Texture2D> const& texture)
 		_srv = nullptr;
 		_texture = nullptr;
 
-		_device->CreateShaderResourceView(
-			texture,
-			&CD3D11_SHADER_RESOURCE_VIEW_DESC(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R8G8B8A8_UNORM),
-			&_srv);
+		D3D11_TEXTURE2D_DESC desc;
+		texture->GetDesc(&desc);
+		CD3D11_SHADER_RESOURCE_VIEW_DESC vdesc(D3D11_SRV_DIMENSION_TEXTURE2D, desc.Format);
+
+		switch (desc.Format)
+		{
+		case DXGI_FORMAT_R32G32B32A32_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			break;
+
+		case DXGI_FORMAT_R32G32B32_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			break;
+
+		case DXGI_FORMAT_R16G16B16A16_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+			break;
+
+		case DXGI_FORMAT_R32G32_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R32G32_FLOAT;
+			break;
+
+		case DXGI_FORMAT_R10G10B10A2_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;
+			break;
+
+		case DXGI_FORMAT_R8G8B8A8_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			break;
+
+		case DXGI_FORMAT_R16G16_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R16G16_FLOAT;
+			break;
+
+		case DXGI_FORMAT_R32_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R32_FLOAT;
+			break;
+
+		case DXGI_FORMAT_R8G8_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R8G8_UNORM;
+			break;
+
+		case DXGI_FORMAT_R16_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R16_FLOAT;
+			break;
+
+		case DXGI_FORMAT_R8_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_R8_UNORM;
+			break;
+
+		case DXGI_FORMAT_BC1_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_BC1_UNORM;
+			break;
+
+		case DXGI_FORMAT_BC2_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_BC2_UNORM;
+			break;
+
+		case DXGI_FORMAT_BC3_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_BC3_UNORM;
+			break;
+
+		case DXGI_FORMAT_BC4_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_BC4_UNORM;
+			break;
+
+		case DXGI_FORMAT_BC5_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_BC5_UNORM;
+			break;
+
+		case DXGI_FORMAT_B8G8R8A8_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+			break;
+
+		case DXGI_FORMAT_B8G8R8X8_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_B8G8R8X8_UNORM;
+			break;
+
+		case DXGI_FORMAT_BC6H_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_BC6H_UF16;
+			break;
+
+		case DXGI_FORMAT_BC7_TYPELESS:
+			vdesc.Format = DXGI_FORMAT_BC7_UNORM;
+			break;
+		};
+
+		_device->CreateShaderResourceView(texture, &vdesc, &_srv);
 		_texture = texture;
 
 		if (texture != nullptr)
