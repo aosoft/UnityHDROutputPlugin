@@ -79,6 +79,12 @@
     <FxCompile Include="Shader\ps_Through.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
+    <FxCompile Include="Shader\ps_LinearToBT2100PQ.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\ps_LinearToSRGB.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\common.hlsli">

@@ -2,6 +2,8 @@
 #include "Material.h"
 #include "vs.csh"
 #include "ps_Through.csh"
+#include "ps_LinearToSRGB.csh"
+#include "ps_LinearToBT2100PQ.csh"
 
 Material::Material(ComPtr<ID3D11Device> const& device) :
 	_device(device),
@@ -11,7 +13,8 @@ Material::Material(ComPtr<ID3D11Device> const& device) :
 
 	_layout = MeshVertex::CreateInputLayout(device, g_shaderbin_vs, sizeof(g_shaderbin_vs));
 	HRException::CheckHR(device->CreateVertexShader(g_shaderbin_vs, sizeof(g_shaderbin_vs), nullptr, &_vs));
-	HRException::CheckHR(device->CreatePixelShader(g_shaderbin_ps_Through, sizeof(g_shaderbin_ps_Through), nullptr, &_ps));
+	//HRException::CheckHR(device->CreatePixelShader(g_shaderbin_ps_Through, sizeof(g_shaderbin_ps_Through), nullptr, &_ps));
+	HRException::CheckHR(device->CreatePixelShader(g_shaderbin_ps_LinearToSRGB, sizeof(g_shaderbin_ps_LinearToSRGB), nullptr, &_ps));
 
 	HRException::CheckHR(device->CreateSamplerState(&CD3D11_SAMPLER_DESC(CD3D11_DEFAULT()), &_sampler));
 	HRException::CheckHR(device->CreateBlendState(&CD3D11_BLEND_DESC(CD3D11_DEFAULT()), &_blend));
