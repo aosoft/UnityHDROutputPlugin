@@ -130,3 +130,8 @@ catch (const std::exception& e)
 	ErrorLog(_fnDebugLog, e);
 	return 0;
 }
+catch (const _com_error& e)
+{
+	ErrorLog(_fnDebugLog, e);
+	return 0;
+}

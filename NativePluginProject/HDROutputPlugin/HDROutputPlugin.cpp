@@ -95,6 +95,10 @@ catch (const std::exception& e)
 {
 	ErrorLog(_fnDebugLog, e);
 }
+catch (const _com_error& e)
+{
+	ErrorLog(_fnDebugLog, e);
+}
 
 PluginBool HDROutputPlugin::IsAvailableDisplayWindow()
 {
@@ -123,6 +127,10 @@ void HDROutputPlugin::GetWindowRect(PluginRect *retRect) try
 	}
 }
 catch (const std::exception& e)
+{
+	ErrorLog(_fnDebugLog, e);
+}
+catch (const _com_error& e)
 {
 	ErrorLog(_fnDebugLog, e);
 }
@@ -168,6 +176,10 @@ catch (const std::exception& e)
 {
 	ErrorLog(_fnDebugLog, e);
 }
+catch (const _com_error& e)
+{
+	ErrorLog(_fnDebugLog, e);
+}
 
 void HDROutputPlugin::RenderDirect() try
 {
@@ -178,6 +190,10 @@ void HDROutputPlugin::RenderDirect() try
 	}
 }
 catch (const std::exception& e)
+{
+	ErrorLog(_fnDebugLog, e);
+}
+catch (const _com_error& e)
 {
 	ErrorLog(_fnDebugLog, e);
 }

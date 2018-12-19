@@ -102,3 +102,13 @@ inline void ErrorLog(FnDebugLog fnDebugLog, const std::exception& e)
 
 	}
 }
+
+inline void ErrorLog(FnDebugLog fnDebugLog, const _com_error& e)
+{
+	if (fnDebugLog != nullptr)
+	{
+		wchar_t tmp[256];
+		swprintf_s(tmp, L"An error occurred. (_com_error / hr = %08x)", e.Error());
+		fnDebugLog(PluginLogType::Error, tmp);
+	}
+}
