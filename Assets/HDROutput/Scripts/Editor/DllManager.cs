@@ -9,6 +9,7 @@ namespace HDROutput
 
 		delegate void FnUnityPluginLoad(IntPtr unityInterfaces);
 		delegate void FnUnityPluginUnload();
+		delegate IntPtr FnGetUnityRenderingEvent();
 
 		public DllManager(string dllpath)
 		{
@@ -17,6 +18,7 @@ namespace HDROutput
 			if (_dll != IntPtr.Zero)
 			{
 				GetDelegate<FnUnityPluginLoad>("UnityPluginLoad")?.Invoke(GetUnityInterface());
+				SetUnityRenderingEvent((GetDelegate<FnGetUnityRenderingEvent>("GetUnityRenderingEvent")?.Invoke()).GetValueOrDefault());
 			}
 		}
 
@@ -24,6 +26,7 @@ namespace HDROutput
 		{
 			if (_dll != IntPtr.Zero)
 			{
+				SetUnityRenderingEvent(IntPtr.Zero);
 				GetDelegate<FnUnityPluginUnload>("UnityPluginUnload")?.Invoke();
 				FreeLibrary(_dll);
 				_dll = IntPtr.Zero;
@@ -41,6 +44,12 @@ namespace HDROutput
 
 		[DllImport("UnityInterfaceManager")]
 		private static extern IntPtr GetUnityInterface();
+
+		[DllImport("UnityInterfaceManager")]
+		public static extern IntPtr GetProxyUnityRenderingEvent();
+
+		[DllImport("UnityInterfaceManager")]
+		private static extern void SetUnityRenderingEvent(IntPtr fn);
 
 		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
 		private static extern IntPtr LoadLibrary(string lpFileName);

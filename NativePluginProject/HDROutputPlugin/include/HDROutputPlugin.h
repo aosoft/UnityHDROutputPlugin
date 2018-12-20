@@ -68,7 +68,8 @@ public:
 	virtual void SetSourceTexture(IUnknown *src) = 0;
 	virtual void RenderDirect() = 0;
 
-	virtual void *RenderAsync() = 0;
+	//	set flag only. require to invoke "GL.IssuePluginEvent".
+	virtual void RequestAsyncRendering() = 0;
 
 	//	for TestApp
 	virtual void SetD3D11Device(ID3D11Device *device) = 0;

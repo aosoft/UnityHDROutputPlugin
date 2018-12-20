@@ -118,7 +118,9 @@ namespace HDROutput
 			FinalizePlugin();
 #if DYNAMIC_DLL_LOAD
 			_dllManager = new DllManager("Assets/HDROutput/Plugins/x86_64/HDROutputPlugin.dll");
-			_plugin = new HDROutputPlugin(_dllManager.GetDelegate<FnCreateHDROutputPluginInstance>("CreateHDROutputPluginInstance"));
+			_plugin = new HDROutputPlugin(
+				_dllManager.GetDelegate<FnCreateHDROutputPluginInstance>("CreateHDROutputPluginInstance"),
+				DllManager.GetProxyUnityRenderingEvent());
 #endif
 		}
 

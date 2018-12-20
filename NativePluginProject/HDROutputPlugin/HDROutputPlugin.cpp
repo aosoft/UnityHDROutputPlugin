@@ -198,12 +198,10 @@ catch (const _com_error& e)
 	ErrorLog(_fnDebugLog, e);
 }
 
-void *HDROutputPlugin::RenderAsync()
+void HDROutputPlugin::RequestAsyncRendering()
 {
 	_asyncRender = true;
-	return OnUnityRenderingEvent;
 }
-
 
 void HDROutputPlugin::SetD3D11Device(ID3D11Device *device)
 {
@@ -252,7 +250,7 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,
 		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::SetSourceTexture>,
 		Proxy<void>::Func<&HDROutputPlugin::RenderDirect>,
-		Proxy<void *>::Func<&HDROutputPlugin::RenderAsync>,
+		Proxy<void>::Func<&HDROutputPlugin::RequestAsyncRendering>,
 	};
 
 	static constexpr int32_t requiredSize = sizeof(funcs) / sizeof(void *) + 1;
@@ -283,6 +281,11 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 catch (const std::exception&)
 {
 	return 0;
+}
+
+void UNITY_INTERFACE_EXPORT *UNITY_INTERFACE_API GetUnityRenderingEvent()
+{
+	return OnUnityRenderingEvent;
 }
 
 void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginLoad(IUnityInterfaces* unityInterfaces)

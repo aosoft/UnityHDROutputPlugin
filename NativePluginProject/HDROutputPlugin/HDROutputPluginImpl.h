@@ -30,7 +30,7 @@ public:
 	virtual void SetSourceTexture(IUnknown *src) override;
 	virtual void RenderDirect() override;
 
-	virtual void *RenderAsync() override;
+	virtual void RequestAsyncRendering() override;
 
 	virtual void SetD3D11Device(ID3D11Device *device) override;
 

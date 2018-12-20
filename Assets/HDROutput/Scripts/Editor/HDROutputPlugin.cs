@@ -52,7 +52,7 @@ namespace HDROutput
 		private delegate void FnSetCallbacks(IntPtr self, IntPtr fnDebugLog, IntPtr fnStateChangedCallback);
 		private delegate void FnGetWindowRect(IntPtr self, out PluginRect rect);
 		private delegate void FnSetSourceTexture(IntPtr self, IntPtr texture);
-		private delegate IntPtr FnRenderAsync(IntPtr self);
+		private delegate IntPtr FnRequestAsyncRendering(IntPtr self);
 
 		private IntPtr _self;
 		private FnAction _fnDestroy;
@@ -66,10 +66,14 @@ namespace HDROutput
 		private FnGetFlag _fnIsAvailableHDR;
 		private FnSetSourceTexture _fnSetSourceTexture;
 		private FnAction _fnRenderDirect;
-		private FnRenderAsync _fnRenderAsync;
+		private FnRequestAsyncRendering _fnRequestAsyncRendering;
 
-		public HDROutputPlugin(FnCreateHDROutputPluginInstance fnCreateHDROutputPluginInstance)
+		private IntPtr _fnUnityRenderingEvent;
+
+		public HDROutputPlugin(FnCreateHDROutputPluginInstance fnCreateHDROutputPluginInstance, IntPtr fnUnityRenderingEvent)
 		{
+			_fnUnityRenderingEvent = fnUnityRenderingEvent;
+
 			int bufferSize = fnCreateHDROutputPluginInstance(null, 0);
 			var buffer = new IntPtr[bufferSize];
 			if (fnCreateHDROutputPluginInstance(buffer, bufferSize) != bufferSize)
@@ -89,7 +93,7 @@ namespace HDROutput
 			_fnIsAvailableHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[8]);
 			_fnSetSourceTexture = Marshal.GetDelegateForFunctionPointer<FnSetSourceTexture>(buffer[9]);
 			_fnRenderDirect = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[10]);
-			_fnRenderAsync = Marshal.GetDelegateForFunctionPointer<FnRenderAsync>(buffer[11]);
+			_fnRequestAsyncRendering = Marshal.GetDelegateForFunctionPointer<FnRequestAsyncRendering>(buffer[11]);
 		}
 
 		public void Dispose()
@@ -179,7 +183,8 @@ namespace HDROutput
 
 		public void RenderAsync()
 		{
-			UnityEngine.GL.IssuePluginEvent(_fnRenderAsync(_self), 0);
+			_fnRequestAsyncRendering(_self);
+			UnityEngine.GL.IssuePluginEvent(_fnUnityRenderingEvent, 0);
 		}
 	}
 

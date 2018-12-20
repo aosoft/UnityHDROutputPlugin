@@ -14,6 +14,7 @@
 #include <stdint.h>
 
 #include <IUnityInterface.h>
+#include <IUnityGraphics.h>
 
 
 // プログラムに必要な追加ヘッダーをここで参照してください
