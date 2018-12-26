@@ -26,14 +26,14 @@ private:
 public:
 	RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device);
 
-	bool GetRequestHDR() const
+	bool GetRequestHDR() const noexcept
 	{
 		return _requestHDR;
 	}
 
 	void SetRequestHDR(bool flag);
 
-	bool IsAvailableHDR() const
+	bool IsAvailableHDR() const noexcept
 	{
 		return _availableHDR;
 	}

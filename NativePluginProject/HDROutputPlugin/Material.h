@@ -29,7 +29,7 @@ public:
 	{
 		return _texture;
 	}
-	const D3D11_TEXTURE2D_DESC& GetTextureDesc() const
+	const D3D11_TEXTURE2D_DESC& GetTextureDesc() const noexcept
 	{
 		return _descTexture;
 	}

@@ -24,7 +24,7 @@ public:
 	{
 	}
 
-	HRESULT GetResult() const
+	HRESULT GetResult() const noexcept
 	{
 		return _hr;
 	}

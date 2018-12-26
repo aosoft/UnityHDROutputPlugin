@@ -55,7 +55,7 @@ public:
 
 	void SetRequestHDR(bool flag);
 
-	bool IsAvailableHDR() const
+	bool IsAvailableHDR() const noexcept
 	{
 		return _renderTarget->IsAvailableHDR();
 	}
