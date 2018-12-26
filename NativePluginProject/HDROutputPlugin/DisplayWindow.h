@@ -21,6 +21,7 @@ private:
 	FnDebugLog _fnDebugLog;
 	FnStateChangedCallback _fnStateChangedCallback;
 	ComPtr<ID3D11Device> _device;
+	PluginRect _rectWindowClosing;
 
 	std::unique_ptr<Mesh> _mesh;
 	std::unique_ptr<Material> _material;
@@ -47,6 +48,18 @@ public:
 		ID3D11Device *device,
 		FnDebugLog fnDebugLog,
 		FnStateChangedCallback fnStateChangedCallback);
+
+	void GetWindowPluginRect(PluginRect& rect) const
+	{
+		if (IsWindow())
+		{
+			rect.UpdateFromHWnd(m_hWnd);
+		}
+		else
+		{
+			rect = _rectWindowClosing;
+		}
+	}
 
 	bool GetRequestHDR() const
 	{

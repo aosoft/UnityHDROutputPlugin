@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "DisplayWindow.h"
 
-DisplayWindow::DisplayWindow()
+DisplayWindow::DisplayWindow() :
+	_rectWindowClosing()
 {
 }
 
@@ -86,6 +87,7 @@ LRESULT DisplayWindow::OnCreate(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bH
 
 LRESULT DisplayWindow::OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	_rectWindowClosing.UpdateFromHWnd(m_hWnd);
 	StateChangedCallback(PluginStateChanged::WindowClosing);
 
 	_mesh = nullptr;

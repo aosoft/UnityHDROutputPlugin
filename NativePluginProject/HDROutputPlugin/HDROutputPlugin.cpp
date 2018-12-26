@@ -29,7 +29,7 @@ HDROutputPlugin::~HDROutputPlugin()
 	}
 }
 
-void HDROutputPlugin::Destroy()
+void HDROutputPlugin::Destroy() noexcept
 {
 	for (auto it = g_plugins.begin(); it != g_plugins.end(); it++)
 	{
@@ -42,13 +42,13 @@ void HDROutputPlugin::Destroy()
 	delete this;
 }
 
-void HDROutputPlugin::SetCallbacks(FnDebugLog fnDebugLog, FnStateChangedCallback fnStateChangedCallback)
+void HDROutputPlugin::SetCallbacks(FnDebugLog fnDebugLog, FnStateChangedCallback fnStateChangedCallback) noexcept
 {
 	_fnDebugLog = fnDebugLog;
 	_fnStateChangedCallback = fnStateChangedCallback;
 }
 
-void HDROutputPlugin::CreateDisplayWindow(const PluginRect *initialPosition) try
+void HDROutputPlugin::CreateDisplayWindow(const PluginRect *initialPosition) noexcept try
 {
 	if (!_window.expired())
 	{
@@ -69,13 +69,8 @@ void HDROutputPlugin::CreateDisplayWindow(const PluginRect *initialPosition) try
 	auto w = DisplayWindow::CreateInstance(device, _fnDebugLog, _fnStateChangedCallback);
 	if (initialPosition != nullptr)
 	{
-		RECT rect2 =
-		{
-			initialPosition->X,
-			initialPosition->Y,
-			initialPosition->X + initialPosition->Width,
-			initialPosition->Y + initialPosition->Height
-		};
+		RECT rect2;
+		initialPosition->CopyToWindowRect(rect2);
 		if (::MonitorFromRect(&rect2, MONITOR_DEFAULTTONULL) != nullptr)
 		{
 			::SetWindowPos(
@@ -100,12 +95,12 @@ catch (const _com_error& e)
 	ErrorLog(_fnDebugLog, e);
 }
 
-PluginBool HDROutputPlugin::IsAvailableDisplayWindow()
+PluginBool HDROutputPlugin::IsAvailableDisplayWindow() noexcept
 {
 	return ToPluginBool(!_window.expired());
 }
 
-void HDROutputPlugin::GetWindowRect(PluginRect *retRect) try
+void HDROutputPlugin::GetWindowRect(PluginRect *retRect) noexcept try
 {
 	if (retRect == nullptr)
 	{
@@ -113,17 +108,9 @@ void HDROutputPlugin::GetWindowRect(PluginRect *retRect) try
 	}
 
 	auto w = _window.lock();
-	RECT rect;
-	if (w != nullptr && w->GetWindowRect(&rect))
+	if (w != nullptr)
 	{
-		retRect->X = rect.left;
-		retRect->Y = rect.top;
-		retRect->Width = rect.right - rect.left;
-		retRect->Height = rect.bottom - rect.top;
-	}
-	else
-	{
-		*retRect = PluginRect();
+		w->GetWindowPluginRect(*retRect);
 	}
 }
 catch (const std::exception& e)
@@ -135,13 +122,44 @@ catch (const _com_error& e)
 	ErrorLog(_fnDebugLog, e);
 }
 
-PluginBool HDROutputPlugin::GetRequestHDR()
+void HDROutputPlugin::RunWindowProc(
+	const PluginRect *initialWindowPosition,
+	FnDebugLog fnDebugLog,
+	FnStateChangedCallback fnStateChangedCallback,
+	PluginRect *retClosedWindowPosition) noexcept try
+{
+	auto device = _device;
+
+	if (device == nullptr && g_unityInterfaces != nullptr)
+	{
+		auto p = g_unityInterfaces->Get<IUnityGraphicsD3D11>();
+		if (p != nullptr)
+		{
+			device = p->GetDevice();
+		}
+	}
+
+	_app = std::make_shared<App>();
+	_app->Run(device, initialWindowPosition, fnDebugLog, fnStateChangedCallback, retClosedWindowPosition);
+	_app = nullptr;
+}
+catch (const std::exception& e)
+{
+	ErrorLog(fnDebugLog, e);
+}
+catch (const _com_error& e)
+{
+	ErrorLog(fnDebugLog, e);
+}
+
+
+PluginBool HDROutputPlugin::GetRequestHDR() noexcept
 {
 	auto w = _window.lock();
 	return ToPluginBool(w != nullptr && w->GetRequestHDR());
 }
 
-void HDROutputPlugin::SetRequestHDR(PluginBool flag)
+void HDROutputPlugin::SetRequestHDR(PluginBool flag) noexcept
 {
 	auto w = _window.lock();
 	if (w != nullptr)
@@ -150,13 +168,13 @@ void HDROutputPlugin::SetRequestHDR(PluginBool flag)
 	}
 }
 
-PluginBool HDROutputPlugin::IsAvailableHDR()
+PluginBool HDROutputPlugin::IsAvailableHDR() noexcept
 {
 	auto w = _window.lock();
 	return ToPluginBool(w != nullptr && w->IsAvailableHDR());
 }
 
-void HDROutputPlugin::SetSourceTexture(IUnknown *src) try
+void HDROutputPlugin::SetSourceTexture(IUnknown *src) noexcept try
 {
 	auto w = _window.lock();
 	if (w != nullptr)
@@ -181,7 +199,7 @@ catch (const _com_error& e)
 	ErrorLog(_fnDebugLog, e);
 }
 
-void HDROutputPlugin::RenderDirect() try
+void HDROutputPlugin::RenderDirect() noexcept try
 {
 	auto w = _window.lock();
 	if (w != nullptr)
@@ -198,17 +216,17 @@ catch (const _com_error& e)
 	ErrorLog(_fnDebugLog, e);
 }
 
-void HDROutputPlugin::RequestAsyncRendering()
+void HDROutputPlugin::RequestAsyncRendering() noexcept
 {
 	_asyncRender = true;
 }
 
-void HDROutputPlugin::SetD3D11Device(ID3D11Device *device)
+void HDROutputPlugin::SetD3D11Device(ID3D11Device *device) noexcept
 {
 	_device = device;
 }
 
-void HDROutputPlugin::RenderForUnityRenderingEvent()
+void HDROutputPlugin::RenderForUnityRenderingEvent() noexcept
 {
 	if (_asyncRender)
 	{
@@ -234,7 +252,7 @@ extern "C" {
 #endif
 
 int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance(
-	void **buffer, int32_t bufferSize) try
+	void **buffer, int32_t bufferSize) noexcept try
 {
 	typedef void * void_ptr;
 
@@ -283,17 +301,17 @@ catch (const std::exception&)
 	return 0;
 }
 
-void UNITY_INTERFACE_EXPORT *UNITY_INTERFACE_API GetUnityRenderingEvent()
+void UNITY_INTERFACE_EXPORT *UNITY_INTERFACE_API GetUnityRenderingEvent() noexcept
 {
 	return OnUnityRenderingEvent;
 }
 
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginLoad(IUnityInterfaces* unityInterfaces)
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginLoad(IUnityInterfaces* unityInterfaces) noexcept
 {
 	g_unityInterfaces = unityInterfaces;
 }
 
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginUnload()
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginUnload() noexcept
 {
 	g_unityInterfaces = nullptr;
 }

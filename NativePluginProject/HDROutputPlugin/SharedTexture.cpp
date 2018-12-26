@@ -6,14 +6,12 @@ SharedTexture::SharedTexture(ComPtr<ID3D11Device> const& device) :
 {
 }
 
-void SharedTexture::UpdateTexture(
+void SharedTexture::SetSourceTexture(
 	ComPtr<ID3D11Device> const& sourceDevice,
 	ComPtr<ID3D11Texture2D> const& sourceTexture)
 {
-	if (sourceDevice != _sourceDevice ||
-		sourceTexture != _sourceTexture)
+	if (sourceTexture != _sourceTexture)
 	{
-		_sourceDevice = nullptr;
 		_sourceTexture = nullptr;
 		_sharedTexture = nullptr;
 		_texture = nullptr;
@@ -39,13 +37,17 @@ void SharedTexture::UpdateTexture(
 
 		HRException::CheckHR(sourceDevice->OpenSharedResource(sharedHandle, IID_PPV_ARGS(&_sharedTexture)));
 	}
-
-	ComPtr<ID3D11DeviceContext> dc;
-	sourceDevice->GetImmediateContext(&dc);
-	dc->CopyResource(_sharedTexture, sourceTexture);
-	dc->Flush();
-
-	_sourceDevice = sourceDevice;
-	_sourceTexture = sourceTexture;
 }
+
+void SharedTexture::UpdateTexture(ComPtr<ID3D11DeviceContext> const& dc)
+{
+	if (dc != nullptr &&
+		_sharedTexture != nullptr &&
+		_sourceTexture != nullptr)
+	{
+		dc->CopyResource(_sharedTexture, _sourceTexture);
+		dc->Flush();
+	}
+}
+
 

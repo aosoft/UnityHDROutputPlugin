@@ -45,6 +45,30 @@ struct PluginRect
 	int32_t Y;
 	int32_t Width;
 	int32_t Height;
+
+	inline void UpdateFromHWnd(HWND hwnd)
+	{
+		RECT rect;
+		if (IsWindow(hwnd) && GetWindowRect(hwnd, &rect))
+		{
+			X = rect.left;
+			Y = rect.top;
+			Width = rect.right - rect.left;
+			Height = rect.bottom - rect.top;
+		}
+		else
+		{
+			*this = {};
+		}
+	}
+
+	inline void CopyToWindowRect(RECT& rect) const
+	{
+		rect.left = X;
+		rect.top = Y;
+		rect.right = X + Width;
+		rect.bottom = Y + Height;
+	}
 };
 
 #pragma pack(pop)
@@ -60,6 +84,12 @@ public:
 	virtual void CreateDisplayWindow(const PluginRect *initialPosition) = 0;
 	virtual PluginBool IsAvailableDisplayWindow() = 0;
 	virtual void GetWindowRect(PluginRect *retRect) = 0;
+
+	virtual void RunWindowProc(
+		const PluginRect *initialWindowPosition,
+		FnDebugLog fnDebugLog,
+		FnStateChangedCallback fnStateChangedCallback,
+		PluginRect *retClosedWindowPosition) noexcept = 0;
 
 	virtual PluginBool GetRequestHDR() = 0;
 	virtual void SetRequestHDR(PluginBool flag) = 0;

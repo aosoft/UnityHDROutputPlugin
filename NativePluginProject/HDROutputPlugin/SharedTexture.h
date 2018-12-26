@@ -8,10 +8,9 @@ class SharedTexture
 private:
 	ComPtr<ID3D11Device> _device;
 	ComPtr<ID3D11Texture2D> _texture;
-
-	ComPtr<ID3D11Device> _sourceDevice;
-	ComPtr<ID3D11Texture2D> _sourceTexture;
 	ComPtr<ID3D11Texture2D> _sharedTexture;
+
+	ComPtr<ID3D11Texture2D> _sourceTexture;
 
 
 public:
@@ -22,7 +21,9 @@ public:
 		return _texture;
 	}
 
-	void UpdateTexture(
+	void SetSourceTexture(
 		ComPtr<ID3D11Device> const& sourceDevice,
 		ComPtr<ID3D11Texture2D> const& sourceTexture);
+
+	void UpdateTexture(ComPtr<ID3D11DeviceContext> const& dc);
 };

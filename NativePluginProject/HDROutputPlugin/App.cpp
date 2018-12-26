@@ -12,8 +12,10 @@ App::~App()
 
 void App::Run(
 	ComPtr<ID3D11Device> const& unityDevice,
+	const PluginRect *initialWindowPosition,
 	FnDebugLog fnDebugLog,
-	FnStateChangedCallback fnStateChangedCallback)
+	FnStateChangedCallback fnStateChangedCallback,
+	PluginRect *retClosedWindowPosition) noexcept
 {
 	class CCoInitialize
 	{
@@ -57,12 +59,34 @@ void App::Run(
 		&feature,
 		&dc));
 
-	_window = DisplayWindow::CreateInstance(device, fnDebugLog, fnStateChangedCallback);
+	auto w = DisplayWindow::CreateInstance(device, fnDebugLog, fnStateChangedCallback);
+	if (initialWindowPosition != nullptr)
+	{
+		RECT rect2;
+		initialWindowPosition->CopyToWindowRect(rect2);
+		if (::MonitorFromRect(&rect2, MONITOR_DEFAULTTONULL) != nullptr)
+		{
+			::SetWindowPos(
+				w->m_hWnd, nullptr,
+				initialWindowPosition->X,
+				initialWindowPosition->Y,
+				initialWindowPosition->Width,
+				initialWindowPosition->Height,
+				SWP_SHOWWINDOW);
+		}
+	}
+
+	w->ShowWindow(SW_SHOW);
 
 	MSG msg;
 	while (GetMessage(&msg, 0, 0, 0))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
+	}
+
+	if (retClosedWindowPosition != nullptr)
+	{
+		w->GetWindowPluginRect(*retClosedWindowPosition);
 	}
 }

@@ -23,7 +23,9 @@ public:
 
 	void Run(
 		ComPtr<ID3D11Device> const& unityDevice,
+		const PluginRect *initialWindowPosition,
 		FnDebugLog fnDebugLog,
-		FnStateChangedCallback fnStateChangedCallback);
+		FnStateChangedCallback fnStateChangedCallback,
+		PluginRect *retClosedWindowPosition) noexcept;
 };
 
