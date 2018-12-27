@@ -124,21 +124,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine,
 
 
 	g_plugin->SetD3D11Device(device);
-	g_plugin->SetCallbacks(DebugLog, StateChangedCallback);
-	g_plugin->CreateDisplayWindow(nullptr);
 
 	g_plugin->SetSourceTexture(texture);
-	g_plugin->RenderDirect();
-
-	MSG msg;
-	while (g_plugin->IsAvailableDisplayWindow() == PluginBool::True)
-	{
-		if (GetMessage(&msg, 0, 0, 0))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
+	PluginRect closed;
+	g_plugin->RunWindowProc(nullptr, DebugLog, StateChangedCallback, &closed);
 
 	dc->ClearState();
 	g_plugin->Destroy();

@@ -140,15 +140,17 @@ void HDROutputPlugin::RunWindowProc(
 	}
 
 	_app = std::make_shared<App>();
-	_app->Run(device, initialWindowPosition, fnDebugLog, fnStateChangedCallback, retClosedWindowPosition);
+	_app->Run(device, _sourceTexture, initialWindowPosition, fnDebugLog, fnStateChangedCallback, retClosedWindowPosition);
 	_app = nullptr;
 }
 catch (const std::exception& e)
 {
+	_app = nullptr;
 	ErrorLog(fnDebugLog, e);
 }
 catch (const _com_error& e)
 {
+	_app = nullptr;
 	ErrorLog(fnDebugLog, e);
 }
 
@@ -176,18 +178,24 @@ PluginBool HDROutputPlugin::IsAvailableHDR() noexcept
 
 void HDROutputPlugin::SetSourceTexture(IUnknown *src) noexcept try
 {
+	ComPtr<ID3D11Texture2D> texture;
+	if (src != nullptr)
+	{
+		if (FAILED(src->QueryInterface(&texture)))
+		{
+			texture = nullptr;
+		}
+	}
+
 	auto w = _window.lock();
 	if (w != nullptr)
 	{
-		ComPtr<ID3D11Texture2D> texture;
-		if (src != nullptr)
-		{
-			if (FAILED(src->QueryInterface(&texture)))
-			{
-				texture = nullptr;
-			}
-		}
 		w->SetSourceTexture(texture);
+		_sourceTexture = nullptr;
+	}
+	else
+	{
+		_sourceTexture = texture;
 	}
 }
 catch (const std::exception& e)

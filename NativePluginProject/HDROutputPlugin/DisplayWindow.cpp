@@ -100,6 +100,7 @@ LRESULT DisplayWindow::OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
 LRESULT DisplayWindow::OnDestroy(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	::PostQuitMessage(0);
 	bHandled = TRUE;
 	return 0;
 }
@@ -114,6 +115,7 @@ LRESULT DisplayWindow::OnMove(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 			if (hdr != _renderTarget->IsAvailableHDR())
 			{
 				StateChangedCallback(PluginStateChanged::CurrentHDRStateChanged);
+				Render();
 			}
 		}
 	}
@@ -126,7 +128,7 @@ LRESULT DisplayWindow::OnSize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (_renderTarget != nullptr)
 	{
 		_renderTarget->ResizeBuffer();
-		StateChangedCallback(PluginStateChanged::WindowSizeChanged);
+		Render();
 	}
 
 	bHandled = TRUE;

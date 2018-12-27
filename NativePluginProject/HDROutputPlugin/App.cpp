@@ -12,6 +12,7 @@ App::~App()
 
 void App::Run(
 	ComPtr<ID3D11Device> const& unityDevice,
+	ComPtr<ID3D11Texture2D> const& sourceTexture,
 	const PluginRect *initialWindowPosition,
 	FnDebugLog fnDebugLog,
 	FnStateChangedCallback fnStateChangedCallback,
@@ -44,7 +45,6 @@ void App::Run(
 
 	ComPtr<ID3D11Device> device;
 	ComPtr<ID3D11DeviceContext> dc;
-	ComPtr<ID3D11Texture2D> texture;
 	D3D_FEATURE_LEVEL feature;
 
 	HRException::CheckHR(D3D11CreateDevice(
@@ -60,6 +60,7 @@ void App::Run(
 		&dc));
 
 	auto w = DisplayWindow::CreateInstance(device, fnDebugLog, fnStateChangedCallback);
+	w->SetSourceTexture(sourceTexture);
 	if (initialWindowPosition != nullptr)
 	{
 		RECT rect2;
@@ -89,4 +90,18 @@ void App::Run(
 	{
 		w->GetWindowPluginRect(*retClosedWindowPosition);
 	}
+
+	w = nullptr;
+
+	dc->ClearState();
+	dc = nullptr;
+
+#ifdef _DEBUG
+	ComPtr<ID3D11Debug> debug;
+	if (SUCCEEDED(device->QueryInterface(&debug)))
+	{
+		device = nullptr;
+		debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	}
+#endif
 }
