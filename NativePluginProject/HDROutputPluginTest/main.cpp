@@ -37,22 +37,6 @@ void UNITY_INTERFACE_API DebugLog(PluginLogType logtype, const wchar_t *msg)
 
 void UNITY_INTERFACE_API StateChangedCallback(PluginStateChanged state)
 {
-	switch (state)
-	{
-	case PluginStateChanged::WindowSizeChanged:
-		if (g_plugin != nullptr)
-		{
-			g_plugin->RenderDirect();
-		}
-		break;
-
-	case PluginStateChanged::CurrentHDRStateChanged:
-		if (g_plugin != nullptr)
-		{
-			g_plugin->RenderDirect();
-		}
-		break;
-	}
 }
 
 ComPtr<ID3D11Texture2D> CreateSampleTexture(

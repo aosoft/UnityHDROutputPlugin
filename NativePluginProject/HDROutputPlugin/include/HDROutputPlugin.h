@@ -32,8 +32,6 @@ enum class PluginLogType : int32_t
 enum class PluginStateChanged : int32_t
 {
 	Unspecified = 0,
-	WindowSizeChanged,
-	WindowClosing,
 	CurrentHDRStateChanged,
 };
 
@@ -79,11 +77,7 @@ using FnStateChangedCallback = void(UNITY_INTERFACE_API *)(PluginStateChanged);
 class IHDROutputPlugin
 {
 public:
-	virtual void Destroy() = 0;
-	virtual void SetCallbacks(FnDebugLog fnDebugLog, FnStateChangedCallback fnStateChangedCallback) = 0;
-	virtual void CreateDisplayWindow(const PluginRect *initialPosition) = 0;
-	virtual PluginBool IsAvailableDisplayWindow() = 0;
-	virtual void GetWindowRect(PluginRect *retRect) = 0;
+	virtual void Destroy() noexcept = 0;
 
 	virtual void RunWindowProc(
 		const PluginRect *initialWindowPosition,
@@ -91,16 +85,16 @@ public:
 		FnStateChangedCallback fnStateChangedCallback,
 		PluginRect *retClosedWindowPosition) noexcept = 0;
 
-	virtual PluginBool GetRequestHDR() = 0;
-	virtual void SetRequestHDR(PluginBool flag) = 0;
-	virtual PluginBool IsAvailableHDR() = 0;
+	virtual PluginBool GetRequestHDR() noexcept = 0;
+	virtual void SetRequestHDR(PluginBool flag) noexcept = 0;
+	virtual PluginBool IsAvailableHDR() noexcept = 0;
 
-	virtual void SetSourceTexture(IUnknown *src) = 0;
-	virtual void RenderDirect() = 0;
+	virtual void SetSourceTexture(IUnknown *src) noexcept = 0;
+	virtual void UpdateSourceTextureDirect() noexcept = 0;
 
 	//	set flag only. require to invoke "GL.IssuePluginEvent".
-	virtual void RequestAsyncRendering() = 0;
+	virtual void RequestAsyncUpdateSourceTexture() noexcept = 0;
 
 	//	for TestApp
-	virtual void SetD3D11Device(ID3D11Device *device) = 0;
+	virtual void SetD3D11Device(ID3D11Device *device) noexcept = 0;
 };

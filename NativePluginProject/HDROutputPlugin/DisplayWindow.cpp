@@ -59,7 +59,6 @@ void DisplayWindow::SetSourceTexture(ComPtr<ID3D11Texture2D> const& source)
 {
 	_sharedTexture->SetSourceTexture(source);
 	_material->SetTexture(_sharedTexture->GetTexture());
-	UpdateSourceTexture();
 }
 
 void DisplayWindow::UpdateSourceTexture()
@@ -96,7 +95,6 @@ LRESULT DisplayWindow::OnCreate(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bH
 LRESULT DisplayWindow::OnClose(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	_rectWindowClosing.UpdateFromHWnd(m_hWnd);
-	StateChangedCallback(PluginStateChanged::WindowClosing);
 
 	_mesh = nullptr;
 	_material = nullptr;
