@@ -6,47 +6,78 @@ SharedTexture::SharedTexture(ComPtr<ID3D11Device> const& device) :
 {
 }
 
-void SharedTexture::SetSourceTexture(
-	ComPtr<ID3D11Device> const& sourceDevice,
-	ComPtr<ID3D11Texture2D> const& sourceTexture)
+void SharedTexture::SetSourceTexture(ComPtr<ID3D11Texture2D> const& sourceTexture) try
 {
-	if (sourceTexture != _sourceTexture)
-	{
-		_sourceTexture = nullptr;
-		_sharedTexture = nullptr;
-		_texture = nullptr;
-	}
-
-	if (sourceDevice == nullptr ||
-		sourceTexture == nullptr)
+	if (sourceTexture == _sourceTexture)
 	{
 		return;
 	}
 
-	if (_sharedTexture != nullptr)
+	_sourceTexture = nullptr;
+
+	if (sourceTexture == nullptr)
 	{
-		D3D11_TEXTURE2D_DESC desc;
-		sourceTexture->GetDesc(&desc);
-		desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
-		HRException::CheckHR(_device->CreateTexture2D(&desc, nullptr, &_texture));
-
-		HANDLE sharedHandle;
-		ComPtr<IDXGIResource> dxgiResource;
-		HRException::CheckHR(_texture->QueryInterface(&dxgiResource));
-		HRException::CheckHR(dxgiResource->GetSharedHandle(&sharedHandle));
-
-		HRException::CheckHR(sourceDevice->OpenSharedResource(sharedHandle, IID_PPV_ARGS(&_sharedTexture)));
+		_sourceDevice = nullptr;
+		_sourceDC = nullptr;
+		_sharedTexture = nullptr;
+		_texture = nullptr;
+		return;
 	}
+
+	_sourceDevice = nullptr;
+	_sourceDC = nullptr;
+	_sharedTexture = nullptr;
+	_texture = nullptr;
+
+	D3D11_TEXTURE2D_DESC desc;
+	sourceTexture->GetDesc(&desc);
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	desc.MiscFlags |= D3D11_RESOURCE_MISC_SHARED;
+
+	if (_texture != nullptr)
+	{
+		D3D11_TEXTURE2D_DESC descTemp;
+		_texture->GetDesc(&descTemp);
+		if (!memcmp(&desc, &descTemp, sizeof(desc)))
+		{
+			return;
+		}
+	}
+
+	ComPtr<ID3D11Device> sourceDevice;
+	sourceTexture->GetDevice(&sourceDevice);
+
+	HRException::CheckHR(_device->CreateTexture2D(&desc, nullptr, &_texture));
+
+	HANDLE sharedHandle;
+	ComPtr<IDXGIResource> dxgiResource;
+	HRException::CheckHR(_texture->QueryInterface(&dxgiResource));
+	HRException::CheckHR(dxgiResource->GetSharedHandle(&sharedHandle));
+
+	HRException::CheckHR(sourceDevice->OpenSharedResource(sharedHandle, IID_PPV_ARGS(&_sharedTexture)));
+
+	_sourceDevice = sourceDevice;
+	sourceDevice->GetImmediateContext(&_sourceDC);
+	_sourceTexture = sourceTexture;
+}
+catch (...)
+{
+	_sourceDevice = nullptr;
+	_sourceDC = nullptr;
+	_sharedTexture = nullptr;
+	_texture = nullptr;
+	throw;
 }
 
-void SharedTexture::UpdateTexture(ComPtr<ID3D11DeviceContext> const& dc)
+void SharedTexture::UpdateTexture()
 {
-	if (dc != nullptr &&
+	if (_sourceDC != nullptr &&
 		_sharedTexture != nullptr &&
 		_sourceTexture != nullptr)
 	{
-		dc->CopyResource(_sharedTexture, _sourceTexture);
-		dc->Flush();
+		_sourceDC->CopyResource(_sharedTexture, _sourceTexture);
+		_sourceDC->Flush();
 	}
 }
 

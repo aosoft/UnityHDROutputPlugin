@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "DisplayWindow.h"
+#include "SharedTexture.h"
 
 #include <thread>
 #include <windows.h>

@@ -60,6 +60,8 @@ void App::Run(
 		&dc));
 
 	auto w = DisplayWindow::CreateInstance(device, fnDebugLog, fnStateChangedCallback);
+	auto sharedTexture = std::make_shared<SharedTexture>(device);
+
 	w->SetSourceTexture(sourceTexture);
 	if (initialWindowPosition != nullptr)
 	{
@@ -76,6 +78,8 @@ void App::Run(
 				SWP_SHOWWINDOW);
 		}
 	}
+
+	_window = w;
 
 	w->ShowWindow(SW_SHOW);
 

@@ -212,6 +212,7 @@ void HDROutputPlugin::RenderDirect() noexcept try
 	auto w = _window.lock();
 	if (w != nullptr)
 	{
+		w->UpdateSourceTexture();
 		w->Render();
 	}
 }

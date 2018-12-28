@@ -24,6 +24,7 @@ void DisplayWindow::InitializeInstance(
 		HRException::CheckHR(HRESULT_FROM_WIN32(::GetLastError()));
 	}
 
+	_sharedTexture = std::make_unique<SharedTexture>(_device);
 	_mesh = Mesh::CreateRectangleMesh(_device);
 	_material = std::make_unique<Material>(_device);
 	_renderTarget = std::make_unique<RenderTarget>(m_hWnd, _device);
@@ -56,7 +57,14 @@ void DisplayWindow::SetRequestHDR(bool flag)
 
 void DisplayWindow::SetSourceTexture(ComPtr<ID3D11Texture2D> const& source)
 {
-	_material->SetTexture(source);
+	_sharedTexture->SetSourceTexture(source);
+	_material->SetTexture(_sharedTexture->GetTexture());
+	UpdateSourceTexture();
+}
+
+void DisplayWindow::UpdateSourceTexture()
+{
+	_sharedTexture->UpdateTexture();
 }
 
 void DisplayWindow::Render()

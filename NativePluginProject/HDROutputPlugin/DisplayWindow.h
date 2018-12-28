@@ -4,6 +4,7 @@
 #include <atlwin.h>
 
 #include <HDROutputPlugin.h>
+#include "SharedTexture.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "RenderTarget.h"
@@ -23,6 +24,7 @@ private:
 	ComPtr<ID3D11Device> _device;
 	PluginRect _rectWindowClosing;
 
+	std::unique_ptr<SharedTexture> _sharedTexture;
 	std::unique_ptr<Mesh> _mesh;
 	std::unique_ptr<Material> _material;
 	std::unique_ptr<RenderTarget> _renderTarget;
@@ -74,6 +76,7 @@ public:
 	}
 
 	void SetSourceTexture(ComPtr<ID3D11Texture2D> const& source);
+	void UpdateSourceTexture();
 
 	void Render();
 
