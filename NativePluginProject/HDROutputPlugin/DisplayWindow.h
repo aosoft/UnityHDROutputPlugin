@@ -24,6 +24,9 @@ private:
 	ComPtr<ID3D11Device> _device;
 	PluginRect _rectWindowClosing;
 
+	std::atomic_int32_t _updatedTextureCounter;
+	int32_t _updatedTextureCounterChecker;
+
 	std::unique_ptr<SharedTexture> _sharedTexture;
 	std::unique_ptr<Mesh> _mesh;
 	std::unique_ptr<Material> _material;
@@ -79,6 +82,7 @@ public:
 	void UpdateSourceTexture();
 
 	void Render();
+	void RenderIfUpdatedSourceTexture();
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/) override;
 

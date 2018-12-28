@@ -2,7 +2,9 @@
 #include "DisplayWindow.h"
 
 DisplayWindow::DisplayWindow() :
-	_rectWindowClosing()
+	_rectWindowClosing(),
+	_updatedTextureCounter(0),
+	_updatedTextureCounterChecker(0)
 {
 }
 
@@ -59,11 +61,13 @@ void DisplayWindow::SetSourceTexture(ComPtr<ID3D11Texture2D> const& source)
 {
 	_sharedTexture->SetSourceTexture(source);
 	_material->SetTexture(_sharedTexture->GetTexture());
+	UpdateSourceTexture();
 }
 
 void DisplayWindow::UpdateSourceTexture()
 {
 	_sharedTexture->UpdateTexture();
+	++_updatedTextureCounter;
 }
 
 void DisplayWindow::Render()
@@ -77,6 +81,16 @@ void DisplayWindow::Render()
 	_renderTarget->Setup(dc, _material->GetTextureDesc());
 	_mesh->Draw(dc);
 	_renderTarget->Present();
+}
+
+void DisplayWindow::RenderIfUpdatedSourceTexture()
+{
+	int32_t c = _updatedTextureCounter;
+	if (c != _updatedTextureCounterChecker)
+	{
+		Render();
+	}
+	_updatedTextureCounter = c;
 }
 
 void DisplayWindow::OnFinalMessage(_In_ HWND /*hWnd*/)

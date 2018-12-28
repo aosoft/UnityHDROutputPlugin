@@ -8,6 +8,7 @@
 #include <exception>
 #include <array>
 #include <memory>
+#include <atomic>
 
 
 template<class Intf>

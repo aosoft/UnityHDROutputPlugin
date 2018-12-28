@@ -83,11 +83,23 @@ void App::Run(
 
 	w->ShowWindow(SW_SHOW);
 
-	MSG msg;
-	while (GetMessage(&msg, 0, 0, 0))
+	while (true)
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		MSG msg;
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else
+		{
+			w->RenderIfUpdatedSourceTexture();
+		}
+
+		if (msg.message == WM_QUIT)
+		{
+			break;
+		}
 	}
 
 	if (retClosedWindowPosition != nullptr)
