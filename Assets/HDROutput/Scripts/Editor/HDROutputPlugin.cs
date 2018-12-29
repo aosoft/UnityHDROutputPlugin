@@ -13,8 +13,6 @@ namespace HDROutput
 	public enum PluginStateChanged : int
 	{
 		Unspecified = 0,
-		WindowSizeChanged,
-		WindowClosing,
 		CurrentHDRStateChanged,
 	};
 
@@ -47,26 +45,23 @@ namespace HDROutput
 		private delegate PluginBool FnGetFlag(IntPtr self);
 		private delegate void FnSetFlag(IntPtr self, PluginBool flag);
 
-		private delegate void FnCreateDisplayWindow(IntPtr self, [In] ref PluginRect rect);
-		private delegate void FnCreateDisplayWindowPtr(IntPtr self, IntPtr rect);
-		private delegate void FnSetCallbacks(IntPtr self, IntPtr fnDebugLog, IntPtr fnStateChangedCallback);
-		private delegate void FnGetWindowRect(IntPtr self, out PluginRect rect);
+		private delegate void FnRunWindowProc(IntPtr self, [In] ref PluginRect rect, IntPtr fnDebugLog, IntPtr fnStateChangedCallback, out PluginRect retLastRect);
+		private delegate void FnRunWindowProcPtr(IntPtr self, IntPtr rect, IntPtr fnDebugLog, IntPtr fnStateChangedCallback, out PluginRect retLastRect);
+
 		private delegate void FnSetSourceTexture(IntPtr self, IntPtr texture);
-		private delegate IntPtr FnRequestAsyncRendering(IntPtr self);
+		private delegate IntPtr FnRequestAsyncUpdateSourceTexture(IntPtr self);
 
 		private IntPtr _self;
 		private FnAction _fnDestroy;
-		private FnSetCallbacks _fnSetCallbacks;
-		private FnCreateDisplayWindow _fnCreateDisplayWindow;
-		private FnCreateDisplayWindowPtr _fnCreateDisplayWindowPtr;
-		private FnGetFlag _fnIsAvailableDisplayWindow;
-		private FnGetWindowRect _fnGetWindowRect;
+		private FnRunWindowProc _fnRunWindowProc;
+		private FnRunWindowProcPtr _fnRunWindowProcPtr;
+		private FnAction _fnCloseWindow;
 		private FnGetFlag _fnGetRequestHDR;
 		private FnSetFlag _fnSetRequestHDR;
 		private FnGetFlag _fnIsAvailableHDR;
 		private FnSetSourceTexture _fnSetSourceTexture;
-		private FnAction _fnRenderDirect;
-		private FnRequestAsyncRendering _fnRequestAsyncRendering;
+		private FnAction _fnUpdateSourceTextureDirect;
+		private FnRequestAsyncUpdateSourceTexture _fnRequestAsyncUpdateSourceTexture;
 
 		private IntPtr _fnUnityRenderingEvent;
 
@@ -83,17 +78,15 @@ namespace HDROutput
 
 			_self = buffer[0];
 			_fnDestroy = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[1]);
-			_fnSetCallbacks = Marshal.GetDelegateForFunctionPointer<FnSetCallbacks>(buffer[2]);
-			_fnCreateDisplayWindow = Marshal.GetDelegateForFunctionPointer<FnCreateDisplayWindow>(buffer[3]);
-			_fnCreateDisplayWindowPtr = Marshal.GetDelegateForFunctionPointer<FnCreateDisplayWindowPtr>(buffer[3]);
-			_fnIsAvailableDisplayWindow = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[4]);
-			_fnGetWindowRect = Marshal.GetDelegateForFunctionPointer<FnGetWindowRect>(buffer[5]);
-			_fnGetRequestHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[6]);
-			_fnSetRequestHDR = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[7]);
-			_fnIsAvailableHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[8]);
-			_fnSetSourceTexture = Marshal.GetDelegateForFunctionPointer<FnSetSourceTexture>(buffer[9]);
-			_fnRenderDirect = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[10]);
-			_fnRequestAsyncRendering = Marshal.GetDelegateForFunctionPointer<FnRequestAsyncRendering>(buffer[11]);
+			_fnRunWindowProc = Marshal.GetDelegateForFunctionPointer<FnRunWindowProc>(buffer[2]);
+			_fnRunWindowProcPtr = Marshal.GetDelegateForFunctionPointer<FnRunWindowProcPtr>(buffer[2]);
+			_fnCloseWindow = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[3]);
+			_fnGetRequestHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[4]);
+			_fnSetRequestHDR = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[5]);
+			_fnIsAvailableHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[6]);
+			_fnSetSourceTexture = Marshal.GetDelegateForFunctionPointer<FnSetSourceTexture>(buffer[7]);
+			_fnUpdateSourceTextureDirect = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[8]);
+			_fnRequestAsyncUpdateSourceTexture = Marshal.GetDelegateForFunctionPointer<FnRequestAsyncUpdateSourceTexture>(buffer[9]);
 		}
 
 		public void Dispose()
@@ -103,26 +96,12 @@ namespace HDROutput
 			_self = IntPtr.Zero;
 		}
 
-		public void CreateDisplayWindow(UnityEngine.RectInt? initialPosition)
+		public UnityEngine.RectInt RunWindowProc(
+			UnityEngine.RectInt? initialPosition,
+			FnDebugLog fnDebugLogFunc, FnStateChangedCallback fnStateChangedCallback)
 		{
-			if (initialPosition.HasValue)
-			{
-				PluginRect rect;
-				rect.X = initialPosition.Value.x;
-				rect.Y = initialPosition.Value.y;
-				rect.Width = initialPosition.Value.width;
-				rect.Height = initialPosition.Value.height;
+			PluginRect retLastRect;
 
-				_fnCreateDisplayWindow(_self, ref rect);
-			}
-			else
-			{
-				_fnCreateDisplayWindowPtr(_self, IntPtr.Zero);
-			}
-		}
-
-		public void SetCallbacks(FnDebugLog fnDebugLogFunc, FnStateChangedCallback fnStateChangedCallback)
-		{
 			var pfnDebugLogFunc = fnDebugLogFunc != null ?
 				Marshal.GetFunctionPointerForDelegate<FnDebugLog>(fnDebugLogFunc) :
 				IntPtr.Zero;
@@ -131,23 +110,27 @@ namespace HDROutput
 				Marshal.GetFunctionPointerForDelegate<FnStateChangedCallback>(fnStateChangedCallback) :
 				IntPtr.Zero;
 
-			_fnSetCallbacks(_self, pfnDebugLogFunc, pfnStateChangedCallback);
-		}
-
-		public bool IsAvailableDisplayWindow
-		{
-			get
+			if (initialPosition.HasValue)
 			{
-				return _fnIsAvailableDisplayWindow(_self).ToBool();
+				PluginRect rect;
+				rect.X = initialPosition.Value.x;
+				rect.Y = initialPosition.Value.y;
+				rect.Width = initialPosition.Value.width;
+				rect.Height = initialPosition.Value.height;
+
+				_fnRunWindowProc(_self, ref rect, pfnDebugLogFunc, pfnStateChangedCallback, out retLastRect);
 			}
+			else
+			{
+				_fnRunWindowProcPtr(_self, IntPtr.Zero, pfnDebugLogFunc, pfnStateChangedCallback, out retLastRect);
+			}
+
+			return new UnityEngine.RectInt(retLastRect.X, retLastRect.Y, retLastRect.Width, retLastRect.Height);
 		}
 
-		public UnityEngine.RectInt GetWindowRect()
+		public void CloseWindow()
 		{
-			PluginRect rect;
-			_fnGetWindowRect(_self, out rect);
-
-			return new UnityEngine.RectInt(rect.X, rect.Y, rect.Width, rect.Height);
+			_fnCloseWindow(_self);
 		}
 
 		public bool RequestHDR
@@ -176,14 +159,14 @@ namespace HDROutput
 			_fnSetSourceTexture(_self, texture);
 		}
 
-		public void RenderDirect()
+		public void UpdateSourceTextureDirect()
 		{
-			_fnRenderDirect(_self);
+			_fnUpdateSourceTextureDirect(_self);
 		}
 
-		public void RenderAsync()
+		public void UpdateSourceTextureAsync()
 		{
-			_fnRequestAsyncRendering(_self);
+			_fnRequestAsyncUpdateSourceTexture(_self);
 			UnityEngine.GL.IssuePluginEvent(_fnUnityRenderingEvent, 0);
 		}
 	}

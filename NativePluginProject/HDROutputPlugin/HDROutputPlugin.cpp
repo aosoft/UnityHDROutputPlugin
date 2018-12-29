@@ -74,6 +74,14 @@ catch (const _com_error& e)
 	ErrorLog(fnDebugLog, e);
 }
 
+void HDROutputPlugin::CloseWindow() noexcept
+{
+	auto w = _window.lock();
+	if (w != nullptr)
+	{
+		w->DestroyWindow();
+	}
+}
 
 PluginBool HDROutputPlugin::GetRequestHDR() noexcept
 {
@@ -188,6 +196,8 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 	static const void_ptr funcs[] =
 	{
 		Proxy<void>::Func<&HDROutputPlugin::Destroy>,
+		Proxy<void, const PluginRect *, FnDebugLog, FnStateChangedCallback, PluginRect *>::Func<&HDROutputPlugin::RunWindowProc>,
+		Proxy<void>::Func<&HDROutputPlugin::CloseWindow>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetRequestHDR>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetRequestHDR>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,

@@ -85,6 +85,8 @@ public:
 		FnStateChangedCallback fnStateChangedCallback,
 		PluginRect *retClosedWindowPosition) noexcept = 0;
 
+	virtual void CloseWindow() noexcept = 0;
+
 	virtual PluginBool GetRequestHDR() noexcept = 0;
 	virtual void SetRequestHDR(PluginBool flag) noexcept = 0;
 	virtual PluginBool IsAvailableHDR() noexcept = 0;

@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEditor;
 
@@ -14,6 +15,7 @@ namespace HDROutput
 #endif
 
 		private HDROutputPlugin _plugin = null;
+		private Thread _thread = null;
 
 		[SerializeField]
 		private Texture _texture;
@@ -30,11 +32,15 @@ namespace HDROutput
 		private void OnEnable()
 		{
 			InitializePlugin();
-			_plugin?.SetCallbacks(OnDebugLog, OnPluginStateChanged);
 		}
 
 		private void OnDisable()
 		{
+			if (_thread != null && !_thread.Join(1))
+			{
+				_plugin.CloseWindow();
+				_thread.Join();
+			}
 			FinalizePlugin();
 		}
 
@@ -50,9 +56,14 @@ namespace HDROutput
 			EditorGUILayout.LabelField("HDR Display Output");
 			if (GUILayout.Button("Open Window"))
 			{
-				if (!_plugin.IsAvailableDisplayWindow)
+				if (_thread == null || _thread.Join(1))
 				{
-					_plugin.CreateDisplayWindow(_previewWindowRect);
+					_thread = new Thread(
+						() =>
+						{
+							_previewWindowRect = _plugin.RunWindowProc(_previewWindowRect, OnDebugLog, OnPluginStateChanged);
+						});
+					_thread.Start();
 				}
 			}
 
@@ -70,7 +81,7 @@ namespace HDROutput
 		{
 			if (_texture != null)
 			{
-				_plugin?.RenderAsync();
+				_plugin?.UpdateSourceTextureAsync();
 			}
 		}
 
@@ -96,19 +107,8 @@ namespace HDROutput
 		{
 			switch (state)
 			{
-				case PluginStateChanged.WindowSizeChanged:
-					//_plugin?.RenderAsync();
-					break;
-
-				case PluginStateChanged.WindowClosing:
-					if (_plugin != null)
-					{
-						_previewWindowRect = _plugin.GetWindowRect();
-					}
-					break;
-
 				case PluginStateChanged.CurrentHDRStateChanged:
-					Repaint();
+					//Repaint();
 					break;
 			}
 		}
