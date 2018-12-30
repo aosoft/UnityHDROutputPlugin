@@ -61,10 +61,10 @@ std::unique_ptr<Mesh> Mesh::CreateRectangleMesh(ComPtr<ID3D11Device> const& devi
 {
 	static const MeshVertex verticies[] =
 	{
-		{ ::DirectX::XMFLOAT2(-1.0f,  1.0f), ::DirectX::XMFLOAT2(0.0f, 0.0f) },
-		{ ::DirectX::XMFLOAT2( 1.0f,  1.0f), ::DirectX::XMFLOAT2(1.0f, 0.0f) },
-		{ ::DirectX::XMFLOAT2(-1.0f, -1.0f), ::DirectX::XMFLOAT2(0.0f, 1.0f) },
-		{ ::DirectX::XMFLOAT2( 1.0f, -1.0f), ::DirectX::XMFLOAT2(1.0f, 1.0f) },
+		{ ::DirectX::XMFLOAT2(-1.0f,  1.0f), ::DirectX::XMFLOAT2(0.0f, 1.0f) },
+		{ ::DirectX::XMFLOAT2( 1.0f,  1.0f), ::DirectX::XMFLOAT2(1.0f, 1.0f) },
+		{ ::DirectX::XMFLOAT2(-1.0f, -1.0f), ::DirectX::XMFLOAT2(0.0f, 0.0f) },
+		{ ::DirectX::XMFLOAT2( 1.0f, -1.0f), ::DirectX::XMFLOAT2(1.0f, 0.0f) },
 	};
 	static const uint16_t indicies[] = { 0, 1, 2, 1, 3, 2 };
 
