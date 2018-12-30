@@ -123,7 +123,7 @@ void RenderTarget::Present()
 {
 	if (_swapchain != nullptr)
 	{
-		HRException::CheckHR(_swapchain->Present(1, 0));
+		HRException::CheckHR(_swapchain->Present(0, 0));
 	}
 }
 

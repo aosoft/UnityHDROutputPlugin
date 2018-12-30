@@ -59,6 +59,14 @@ void App::Run(
 		&feature,
 		&dc));
 
+	/*{
+		ComPtr<ID3D10Multithread> multithread;
+		if (SUCCEEDED(device->QueryInterface(&multithread)))
+		{
+			multithread->SetMultithreadProtected(TRUE);
+		}
+	}*/
+
 	auto w = DisplayWindow::CreateInstance(device, fnDebugLog, fnStateChangedCallback);
 	auto sharedTexture = std::make_shared<SharedTexture>(device);
 
@@ -85,38 +93,49 @@ void App::Run(
 
 	while (true)
 	{
-		MSG msg;
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		try
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		else
-		{
-			w->RenderIfUpdatedSourceTexture();
-		}
-
-		if (msg.message == WM_QUIT)
-		{
-			break;
-		}
-
-		std::function<void()> task;
-
-		{
-			std::lock_guard<std::mutex> lock(_lockTaskList);
-			if (_queTask.size() > 0)
+			MSG msg;
+			if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 			{
-				task = *_queTask.begin();
-				_queTask.pop_front();
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
 			}
 			else
 			{
-				continue;
+				w->RenderIfUpdatedSourceTexture();
 			}
-		}
 
-		task();
+			if (msg.message == WM_QUIT)
+			{
+				break;
+			}
+
+			std::function<void()> task;
+
+			{
+				std::lock_guard<std::mutex> lock(_lockTaskList);
+				if (_queTask.size() > 0)
+				{
+					task = *_queTask.begin();
+					_queTask.pop_front();
+				}
+				else
+				{
+					continue;
+				}
+			}
+
+			task();
+		}
+		catch (const std::exception& e)
+		{
+			ErrorLog(fnDebugLog, e);
+		}
+		catch (const _com_error& e)
+		{
+			ErrorLog(fnDebugLog, e);
+		}
 	}
 
 	if (retClosedWindowPosition != nullptr)

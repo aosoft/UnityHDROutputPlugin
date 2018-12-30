@@ -164,7 +164,6 @@ void HDROutputPlugin::UpdateSourceTextureDirect() noexcept try
 	if (w != nullptr)
 	{
 		w->UpdateSourceTexture();
-		w->Render();
 	}
 }
 catch (const std::exception& e)
