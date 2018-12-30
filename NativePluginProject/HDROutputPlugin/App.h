@@ -5,13 +5,18 @@
 #include "SharedTexture.h"
 
 #include <thread>
-#include <windows.h>
+#include <functional>
+#include <deque>
 
+#include <windows.h>
 
 class App
 {
 private:
 	std::weak_ptr<DisplayWindow> _window;
+
+	std::mutex _lockTaskList;
+	std::deque<std::function<void()>> _queTask;
 
 public:
 	App();
@@ -29,5 +34,7 @@ public:
 		FnDebugLog fnDebugLog,
 		FnStateChangedCallback fnStateChangedCallback,
 		PluginRect *retClosedWindowPosition) noexcept;
+
+	void BeginInvoke(std::function<void()> task);
 };
 

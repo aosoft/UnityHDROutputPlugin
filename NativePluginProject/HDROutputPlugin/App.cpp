@@ -100,6 +100,23 @@ void App::Run(
 		{
 			break;
 		}
+
+		std::function<void()> task;
+
+		{
+			std::lock_guard<std::mutex> lock(_lockTaskList);
+			if (_queTask.size() > 0)
+			{
+				task = *_queTask.begin();
+				_queTask.pop_front();
+			}
+			else
+			{
+				continue;
+			}
+		}
+
+		task();
 	}
 
 	if (retClosedWindowPosition != nullptr)
@@ -120,4 +137,11 @@ void App::Run(
 		debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	}
 #endif
+}
+
+void App::BeginInvoke(std::function<void()> task)
+{
+	std::lock_guard<std::mutex> lock(_lockTaskList);
+
+	_queTask.push_back(task);
 }

@@ -22,11 +22,6 @@ HDROutputPlugin::HDROutputPlugin() :
 
 HDROutputPlugin::~HDROutputPlugin()
 {
-	auto w = _window.lock();
-	if (w != nullptr)
-	{
-		w->DestroyWindow();
-	}
 }
 
 void HDROutputPlugin::Destroy() noexcept
@@ -39,6 +34,21 @@ void HDROutputPlugin::Destroy() noexcept
 			break;
 		}
 	}
+	CloseWindow();
+
+	while (true)
+	{
+		{
+			std::lock_guard<std::mutex> lock(_lockApp);
+			if (_app == nullptr)
+			{
+				break;
+			}
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+
 	delete this;
 }
 
@@ -59,39 +69,49 @@ void HDROutputPlugin::RunWindowProc(
 		}
 	}
 
-	_app = std::make_shared<App>();
+	SetApp(std::make_shared<App>());
 	_app->Run(device, _sourceTexture, initialWindowPosition, fnDebugLog, fnStateChangedCallback, retClosedWindowPosition);
-	_app = nullptr;
+	SetApp(nullptr);
 }
 catch (const std::exception& e)
 {
-	_app = nullptr;
+	SetApp(nullptr);
 	ErrorLog(fnDebugLog, e);
 }
 catch (const _com_error& e)
 {
-	_app = nullptr;
+	SetApp(nullptr);
 	ErrorLog(fnDebugLog, e);
 }
 
 void HDROutputPlugin::CloseWindow() noexcept
 {
-	auto w = _window.lock();
-	if (w != nullptr)
+	auto app = GetApp();
+	if (app == nullptr)
 	{
-		w->DestroyWindow();
+		return;
 	}
+	app->BeginInvoke([app]()
+	{
+		auto w = app->GetWindow().lock();
+		if (w != nullptr)
+		{
+			w->DestroyWindow();
+		}
+	});
 }
 
 PluginBool HDROutputPlugin::GetRequestHDR() noexcept
 {
-	auto w = _window.lock();
+	auto app = GetApp();
+	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	return ToPluginBool(w != nullptr && w->GetRequestHDR());
 }
 
 void HDROutputPlugin::SetRequestHDR(PluginBool flag) noexcept
 {
-	auto w = _window.lock();
+	auto app = GetApp();
+	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	if (w != nullptr)
 	{
 		w->SetRequestHDR(FromPluginBool(flag));
@@ -100,7 +120,8 @@ void HDROutputPlugin::SetRequestHDR(PluginBool flag) noexcept
 
 PluginBool HDROutputPlugin::IsAvailableHDR() noexcept
 {
-	auto w = _window.lock();
+	auto app = GetApp();
+	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	return ToPluginBool(w != nullptr && w->IsAvailableHDR());
 }
 
@@ -115,7 +136,8 @@ void HDROutputPlugin::SetSourceTexture(IUnknown *src) noexcept try
 		}
 	}
 
-	auto w = _window.lock();
+	auto app = GetApp();
+	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	if (w != nullptr)
 	{
 		w->SetSourceTexture(texture);
@@ -137,7 +159,8 @@ catch (const _com_error& e)
 
 void HDROutputPlugin::UpdateSourceTextureDirect() noexcept try
 {
-	auto w = _window.lock();
+	auto app = GetApp();
+	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	if (w != nullptr)
 	{
 		w->UpdateSourceTexture();

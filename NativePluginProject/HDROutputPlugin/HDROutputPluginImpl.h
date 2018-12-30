@@ -10,8 +10,8 @@ class HDROutputPlugin :
 	public IHDROutputPlugin
 {
 private:
+	std::mutex _lockApp;
 	std::shared_ptr<App> _app;
-	std::weak_ptr<DisplayWindow> _window;
 
 	FnDebugLog _fnDebugLog;
 	FnStateChangedCallback _fnStateChangedCallback;
@@ -21,8 +21,11 @@ private:
 
 public:
 	HDROutputPlugin();
-	~HDROutputPlugin();
 
+private:
+	virtual ~HDROutputPlugin();
+
+public:
 	virtual void Destroy() noexcept override;
 
 	virtual void RunWindowProc(
@@ -44,4 +47,17 @@ public:
 	virtual void SetD3D11Device(ID3D11Device *device) noexcept override;
 
 	void RenderForUnityRenderingEvent() noexcept;
+
+private:
+	std::shared_ptr<App> GetApp()
+	{
+		std::lock_guard<std::mutex> lock(_lockApp);
+		return _app;
+	}
+
+	void SetApp(std::shared_ptr<App> const& app)
+	{
+		std::lock_guard<std::mutex> lock(_lockApp);
+		_app = app;
+	}
 };
