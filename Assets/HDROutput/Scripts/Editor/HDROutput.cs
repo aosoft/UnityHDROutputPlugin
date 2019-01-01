@@ -96,6 +96,8 @@ namespace HDROutput
 			{
 				//	property changed
 				_plugin.SetSourceTexture(_texture != null ? _texture.GetNativeTexturePtr() : System.IntPtr.Zero);
+				_plugin.GammaCollect = _gammaCorrect;
+				_plugin.RequestHDR = _requestHDR;
 			}
 
 		}

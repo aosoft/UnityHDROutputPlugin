@@ -39,6 +39,10 @@ public:
 	virtual PluginBool GetRequestHDR() noexcept override;
 	virtual void SetRequestHDR(PluginBool flag) noexcept override;
 	virtual PluginBool IsAvailableHDR() noexcept override;
+
+	virtual PluginBool GetGammaCollect() override;
+	virtual void SetGammaCollect(PluginBool flag) override;
+
 	virtual void SetSourceTexture(IUnknown *src) noexcept override;
 	virtual void UpdateSourceTextureDirect() noexcept override;
 

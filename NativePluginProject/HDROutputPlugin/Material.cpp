@@ -7,14 +7,13 @@
 
 Material::Material(ComPtr<ID3D11Device> const& device) :
 	_device(device),
-	_descTexture()
+	_descTexture(),
+	_pscode(PSCode::PassThrough)
 {
 	HRException::CheckNull(device);
 
 	_layout = MeshVertex::CreateInputLayout(device, g_shaderbin_vs, sizeof(g_shaderbin_vs));
 	HRException::CheckHR(device->CreateVertexShader(g_shaderbin_vs, sizeof(g_shaderbin_vs), nullptr, &_vs));
-	HRException::CheckHR(device->CreatePixelShader(g_shaderbin_ps_Through, sizeof(g_shaderbin_ps_Through), nullptr, &_ps));
-	//HRException::CheckHR(device->CreatePixelShader(g_shaderbin_ps_LinearToSRGB, sizeof(g_shaderbin_ps_LinearToSRGB), nullptr, &_ps));
 
 	HRException::CheckHR(device->CreateSamplerState(&CD3D11_SAMPLER_DESC(CD3D11_DEFAULT()), &_sampler));
 	HRException::CheckHR(device->CreateBlendState(&CD3D11_BLEND_DESC(CD3D11_DEFAULT()), &_blend));
@@ -132,13 +131,34 @@ void Material::SetTexture(ComPtr<ID3D11Texture2D> const& texture)
 	}
 }
 
-void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc)
+void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, PSCode pscode)
 {
 	HRException::CheckNull(dc);
 
 	dc->IASetInputLayout(_layout);
 
 	dc->VSSetShader(_vs, nullptr, 0);
+
+	if (_ps == nullptr || pscode != _pscode)
+	{
+		_ps = nullptr;
+
+		switch (pscode)
+		{
+		case PSCode::LinearToSRGB:
+			HRException::CheckHR(_device->CreatePixelShader(g_shaderbin_ps_LinearToSRGB, sizeof(g_shaderbin_ps_LinearToSRGB), nullptr, &_ps));
+			break;
+
+		case PSCode::LinearToBT2100PQ:
+			HRException::CheckHR(_device->CreatePixelShader(g_shaderbin_ps_LinearToBT2100PQ, sizeof(g_shaderbin_ps_LinearToBT2100PQ), nullptr, &_ps));
+			break;
+
+		default:
+			HRException::CheckHR(_device->CreatePixelShader(g_shaderbin_ps_Through, sizeof(g_shaderbin_ps_Through), nullptr, &_ps));
+		};
+
+		_pscode = pscode;
+	}
 
 	dc->PSSetShader(_ps, nullptr, 0);
 	dc->PSSetSamplers(0, 1, &_sampler.GetInterfacePtr());

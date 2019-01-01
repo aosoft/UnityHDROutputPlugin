@@ -48,7 +48,7 @@ void RenderTarget::Setup(ComPtr<ID3D11DeviceContext> const& dc, uint32_t sourceW
 {
 	HRException::CheckNull(dc);
 
-	if (_width < 1 || _height < 1)
+	if (_width < 1 || _height < 1 || _rtv == nullptr)
 	{
 		return;
 	}

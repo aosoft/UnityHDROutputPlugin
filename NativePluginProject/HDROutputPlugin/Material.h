@@ -5,6 +5,13 @@
 
 #include "Mesh.h"
 
+enum class PSCode : int32_t
+{
+	PassThrough = 0,
+	LinearToSRGB,
+	LinearToBT2100PQ
+};
+
 class Material
 {
 private:
@@ -13,6 +20,7 @@ private:
 	ComPtr<ID3D11InputLayout> _layout;
 	ComPtr<ID3D11VertexShader> _vs;
 	ComPtr<ID3D11PixelShader> _ps;
+	PSCode _pscode;
 
 	D3D11_TEXTURE2D_DESC _descTexture;
 	ComPtr<ID3D11Texture2D> _texture;
@@ -36,5 +44,5 @@ public:
 
 	void SetTexture(ComPtr<ID3D11Texture2D> const& texture);
 
-	void Setup(ComPtr<ID3D11DeviceContext> const& dc);
+	void Setup(ComPtr<ID3D11DeviceContext> const& dc, PSCode pscode);
 };

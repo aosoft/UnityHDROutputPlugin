@@ -32,6 +32,8 @@ private:
 	std::unique_ptr<Material> _material;
 	std::unique_ptr<RenderTarget> _renderTarget;
 
+	bool _gammaCollect;
+
 public:
 	BEGIN_MSG_MAP(DisplayWindow)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -76,6 +78,16 @@ public:
 	bool IsAvailableHDR() const noexcept
 	{
 		return _renderTarget->IsAvailableHDR();
+	}
+
+	bool GetGammaCollect() const
+	{
+		return _gammaCollect;
+	}
+
+	void SetGammaCollect(bool flag)
+	{
+		_gammaCollect = flag;
 	}
 
 	void SetSourceTexture(ComPtr<ID3D11Texture2D> const& source);

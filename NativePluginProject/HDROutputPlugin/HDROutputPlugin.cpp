@@ -125,6 +125,24 @@ PluginBool HDROutputPlugin::IsAvailableHDR() noexcept
 	return ToPluginBool(w != nullptr && w->IsAvailableHDR());
 }
 
+PluginBool HDROutputPlugin::GetGammaCollect()
+{
+	auto app = GetApp();
+	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
+	return ToPluginBool(w != nullptr && w->GetGammaCollect());
+}
+
+void HDROutputPlugin::SetGammaCollect(PluginBool flag)
+{
+	auto app = GetApp();
+	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
+	if (w != nullptr)
+	{
+		w->SetGammaCollect(FromPluginBool(flag));
+	}
+}
+
+
 void HDROutputPlugin::SetSourceTexture(IUnknown *src) noexcept try
 {
 	ComPtr<ID3D11Texture2D> texture;
@@ -223,6 +241,8 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetRequestHDR>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetRequestHDR>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,
+		Proxy<PluginBool>::Func<&HDROutputPlugin::GetGammaCollect>,
+		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetGammaCollect>,
 		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::SetSourceTexture>,
 		Proxy<void>::Func<&HDROutputPlugin::UpdateSourceTextureDirect>,
 		Proxy<void>::Func<&HDROutputPlugin::RequestAsyncUpdateSourceTexture>,

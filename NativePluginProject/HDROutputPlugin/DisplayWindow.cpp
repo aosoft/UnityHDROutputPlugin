@@ -4,7 +4,8 @@
 DisplayWindow::DisplayWindow() :
 	_rectWindowClosing(),
 	_updatedTextureCounter(0),
-	_updatedTextureCounterChecker(0)
+	_updatedTextureCounterChecker(0),
+	_gammaCollect(false)
 {
 }
 
@@ -77,7 +78,10 @@ void DisplayWindow::Render()
 
 	dc->ClearState();
 
-	_material->Setup(dc);
+	_material->Setup(
+		dc,
+		_gammaCollect ? _renderTarget->IsAvailableHDR() ?
+		PSCode::LinearToBT2100PQ : PSCode::LinearToSRGB : PSCode::PassThrough);
 	_renderTarget->Setup(dc, _material->GetTextureDesc());
 	_mesh->Draw(dc);
 	_renderTarget->Present();

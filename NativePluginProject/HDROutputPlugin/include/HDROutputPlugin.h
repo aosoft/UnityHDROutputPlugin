@@ -91,6 +91,9 @@ public:
 	virtual void SetRequestHDR(PluginBool flag) noexcept = 0;
 	virtual PluginBool IsAvailableHDR() noexcept = 0;
 
+	virtual PluginBool GetGammaCollect() = 0;
+	virtual void SetGammaCollect(PluginBool flag) = 0;
+
 	virtual void SetSourceTexture(IUnknown *src) noexcept = 0;
 	virtual void UpdateSourceTextureDirect() noexcept = 0;
 
