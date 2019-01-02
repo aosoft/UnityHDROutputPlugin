@@ -43,6 +43,9 @@ public:
 	virtual PluginBool GetGammaCollect() override;
 	virtual void SetGammaCollect(PluginBool flag) override;
 
+	virtual PluginBool GetTopmost() override;
+	virtual void SetTopmost(PluginBool flag) override;
+
 	virtual void SetSourceTexture(IUnknown *src) noexcept override;
 	virtual void UpdateSourceTextureDirect() noexcept override;
 

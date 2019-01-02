@@ -52,5 +52,6 @@ public:
 
 private:
 	void InitializeSwapChain();
+	void FinalizeSwapChain();
 
 };

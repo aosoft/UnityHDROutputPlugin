@@ -16,15 +16,19 @@ namespace HDROutput
 
 		private HDROutputPlugin _plugin = null;
 		private Thread _thread = null;
+		private bool _isActiveThread = false;
 
 		[SerializeField]
-		private Texture _texture;
+		private Texture _texture = null;
 
 		[SerializeField]
-		private bool _requestHDR;
+		private bool _requestHDR = false;
 
 		[SerializeField]
-		private bool _gammaCorrect;
+		private bool _gammaCorrect = false;
+
+		[SerializeField]
+		private bool _topmost = false;
 
 		[SerializeField]
 		private UnityEngine.RectInt? _previewWindowRect = null;
@@ -72,7 +76,15 @@ namespace HDROutput
 					_thread = new Thread(
 						() =>
 						{
-							_previewWindowRect = _plugin.RunWindowProc(_previewWindowRect, OnDebugLog, OnPluginStateChanged);
+							_isActiveThread = true;
+							try
+							{
+								_previewWindowRect = _plugin.RunWindowProc(_previewWindowRect, OnDebugLog, OnPluginStateChanged);
+							}
+							finally
+							{
+								_isActiveThread = false;
+							}
 						});
 					_thread.Start();
 				}
@@ -82,24 +94,28 @@ namespace HDROutput
 
 			_gammaCorrect = EditorGUI.Toggle(new Rect(0, 96, position.width, 24), "Gamma Correct", _gammaCorrect);
 			_requestHDR = EditorGUI.Toggle(new Rect(0, 120, position.width, 24), "Request HDR", _requestHDR);
+			_topmost = EditorGUI.Toggle(new Rect(0, 144, position.width, 24), "Top most", _topmost);
 
-			var isHDR = _plugin.IsAvailableHDR;
-			var gammaCorrent = _gammaCorrect ? isHDR ?
-				"Linear -> BT.2100 (PQ)" :
-				"Linear -> sRGB" :
-				"None (Pass through)";
-
-			EditorGUI.LabelField(
-				new Rect(0, 144, position.width, 24),
-				string.Format("{0} / {1}", isHDR ? "HDR Output" : "SDR Output", gammaCorrent));
-			if (EditorGUI.EndChangeCheck())
+			if (_isActiveThread)
 			{
-				//	property changed
-				_plugin.SetSourceTexture(_texture != null ? _texture.GetNativeTexturePtr() : System.IntPtr.Zero);
-				_plugin.GammaCollect = _gammaCorrect;
-				_plugin.RequestHDR = _requestHDR;
-			}
+				var isHDR = _plugin.IsAvailableHDR;
+				var gammaCorrent = _gammaCorrect ? isHDR ?
+					"Linear -> BT.2100 (PQ)" :
+					"Linear -> sRGB" :
+					"None (Pass through)";
 
+				EditorGUI.LabelField(
+					new Rect(0, 168, position.width, 24),
+					string.Format("{0} / {1}", isHDR ? "HDR Output" : "SDR Output", gammaCorrent));
+				if (EditorGUI.EndChangeCheck())
+				{
+					//	property changed
+					_plugin.SetSourceTexture(_texture != null ? _texture.GetNativeTexturePtr() : System.IntPtr.Zero);
+					_plugin.GammaCollect = _gammaCorrect;
+					_plugin.RequestHDR = _requestHDR;
+					_plugin.Topmost = _topmost;
+				}
+			}
 		}
 
 		private void Update()

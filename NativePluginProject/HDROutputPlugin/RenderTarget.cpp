@@ -31,15 +31,13 @@ RenderTarget::RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device) :
 	HRException::CheckHR(device->QueryInterface(&dxgidevice));
 	HRException::CheckHR(dxgidevice->GetParent(IID_PPV_ARGS(&adapter)));
 	HRException::CheckHR(adapter->GetParent(IID_PPV_ARGS(&_factory)));
-
-	InitializeSwapChain();
 }
 
 void RenderTarget::SetRequestHDR(bool flag)
 {
 	if (flag != _requestHDR)
 	{
-		InitializeSwapChain();
+		FinalizeSwapChain();
 	}
 	_requestHDR = flag;
 }
@@ -48,9 +46,14 @@ void RenderTarget::Setup(ComPtr<ID3D11DeviceContext> const& dc, uint32_t sourceW
 {
 	HRException::CheckNull(dc);
 
-	if (_width < 1 || _height < 1 || _rtv == nullptr)
+	if (_width < 1 || _height < 1)
 	{
 		return;
+	}
+
+	if (_rtv == nullptr)
+	{
+		InitializeSwapChain();
 	}
 
 	auto vp = D3D11_VIEWPORT();
@@ -138,10 +141,7 @@ void RenderTarget::InitializeSwapChain()
 		return;
 	}
 
-	_swapchain = nullptr;
-	_currentDisplay = nullptr;
-	_rtv = nullptr;
-	_availableHDR = false;
+	FinalizeSwapChain();
 
 	ComPtr<IDXGIFactory2> factory2;
 	hr = _factory->QueryInterface(&factory2);
@@ -219,4 +219,12 @@ void RenderTarget::InitializeSwapChain()
 	}
 	_rtv = CreateRenderTargetView(_device, _swapchain);
 	_currentDisplay = ::MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
+}
+
+void RenderTarget::FinalizeSwapChain()
+{
+	_swapchain = nullptr;
+	_currentDisplay = nullptr;
+	_rtv = nullptr;
+	_availableHDR = false;
 }

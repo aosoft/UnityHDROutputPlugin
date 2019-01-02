@@ -142,6 +142,29 @@ void HDROutputPlugin::SetGammaCollect(PluginBool flag)
 	}
 }
 
+PluginBool HDROutputPlugin::GetTopmost()
+{
+	auto app = GetApp();
+	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
+	return ToPluginBool(w != nullptr && w->GetTopmost());
+}
+
+void HDROutputPlugin::SetTopmost(PluginBool flag)
+{
+	auto app = GetApp();
+	if (app == nullptr)
+	{
+		return;
+	}
+	app->BeginInvoke([app, flag]()
+	{
+		auto w = app->GetWindow().lock();
+		if (w != nullptr)
+		{
+			w->SetTopmost(FromPluginBool(flag));
+		}
+	});
+}
 
 void HDROutputPlugin::SetSourceTexture(IUnknown *src) noexcept try
 {
@@ -243,6 +266,8 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetGammaCollect>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetGammaCollect>,
+		Proxy<PluginBool>::Func<&HDROutputPlugin::GetTopmost>,
+		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetTopmost>,
 		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::SetSourceTexture>,
 		Proxy<void>::Func<&HDROutputPlugin::UpdateSourceTextureDirect>,
 		Proxy<void>::Func<&HDROutputPlugin::RequestAsyncUpdateSourceTexture>,

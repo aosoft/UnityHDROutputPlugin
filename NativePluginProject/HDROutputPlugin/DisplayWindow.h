@@ -33,6 +33,7 @@ private:
 	std::unique_ptr<RenderTarget> _renderTarget;
 
 	bool _gammaCollect;
+	bool _topmost;
 
 public:
 	BEGIN_MSG_MAP(DisplayWindow)
@@ -89,6 +90,14 @@ public:
 	{
 		_gammaCollect = flag;
 	}
+
+	bool GetTopmost() const
+	{
+		return _topmost;
+	}
+
+	void SetTopmost(bool flag);
+
 
 	void SetSourceTexture(ComPtr<ID3D11Texture2D> const& source);
 	void UpdateSourceTexture();

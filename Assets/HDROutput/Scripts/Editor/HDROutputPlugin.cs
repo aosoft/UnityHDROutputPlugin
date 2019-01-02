@@ -61,6 +61,8 @@ namespace HDROutput
 		private FnGetFlag _fnIsAvailableHDR;
 		private FnGetFlag _fnGetGammaCollect;
 		private FnSetFlag _fnSetGammaCollect;
+		private FnGetFlag _fnGetTopmost;
+		private FnSetFlag _fnSetTopmost;
 		private FnSetSourceTexture _fnSetSourceTexture;
 		private FnAction _fnUpdateSourceTextureDirect;
 		private FnRequestAsyncUpdateSourceTexture _fnRequestAsyncUpdateSourceTexture;
@@ -88,9 +90,11 @@ namespace HDROutput
 			_fnIsAvailableHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[6]);
 			_fnGetGammaCollect = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[7]);
 			_fnSetGammaCollect = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[8]);
-			_fnSetSourceTexture = Marshal.GetDelegateForFunctionPointer<FnSetSourceTexture>(buffer[9]);
-			_fnUpdateSourceTextureDirect = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[10]);
-			_fnRequestAsyncUpdateSourceTexture = Marshal.GetDelegateForFunctionPointer<FnRequestAsyncUpdateSourceTexture>(buffer[11]);
+			_fnGetTopmost = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[9]);
+			_fnSetTopmost = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[10]);
+			_fnSetSourceTexture = Marshal.GetDelegateForFunctionPointer<FnSetSourceTexture>(buffer[11]);
+			_fnUpdateSourceTextureDirect = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[12]);
+			_fnRequestAsyncUpdateSourceTexture = Marshal.GetDelegateForFunctionPointer<FnRequestAsyncUpdateSourceTexture>(buffer[13]);
 		}
 
 		public void Dispose()
@@ -168,6 +172,19 @@ namespace HDROutput
 			set
 			{
 				_fnSetGammaCollect(_self, value.ToPluginBool());
+			}
+		}
+
+		public bool Topmost
+		{
+			get
+			{
+				return _fnGetTopmost(_self).ToBool();
+			}
+
+			set
+			{
+				_fnSetTopmost(_self, value.ToPluginBool());
 			}
 		}
 
