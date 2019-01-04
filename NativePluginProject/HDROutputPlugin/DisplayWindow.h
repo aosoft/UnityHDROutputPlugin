@@ -35,6 +35,9 @@ private:
 	bool _gammaCollect;
 	bool _topmost;
 
+	bool _lastIsHDR;
+	bool _lastGammaCollect;
+
 public:
 	BEGIN_MSG_MAP(DisplayWindow)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -114,6 +117,7 @@ public:
 	LRESULT OnSize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
+	void UpdateWindowText(bool isHDR, bool gammaCollect) noexcept;
 
 	void StateChangedCallback(PluginStateChanged state)
 	{

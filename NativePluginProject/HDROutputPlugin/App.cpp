@@ -12,7 +12,7 @@ App::~App()
 
 void App::Run(
 	ComPtr<ID3D11Device> const& unityDevice,
-	ComPtr<ID3D11Texture2D> const& sourceTexture,
+	std::function<void(DisplayWindow *)> fnCreatedCallback,
 	const PluginRect *initialWindowPosition,
 	FnDebugLog fnDebugLog,
 	FnStateChangedCallback fnStateChangedCallback,
@@ -70,7 +70,6 @@ void App::Run(
 	auto w = DisplayWindow::CreateInstance(device, fnDebugLog, fnStateChangedCallback);
 	auto sharedTexture = std::make_shared<SharedTexture>(device);
 
-	w->SetSourceTexture(sourceTexture);
 	if (initialWindowPosition != nullptr)
 	{
 		RECT rect2;
@@ -85,6 +84,11 @@ void App::Run(
 				initialWindowPosition->Height,
 				SWP_SHOWWINDOW);
 		}
+	}
+
+	if (fnCreatedCallback != nullptr)
+	{
+		fnCreatedCallback(w.get());
 	}
 
 	_window = w;

@@ -29,7 +29,7 @@ public:
 
 	void Run(
 		ComPtr<ID3D11Device> const& unityDevice,
-		ComPtr<ID3D11Texture2D> const& sourceTexture,
+		std::function<void(DisplayWindow *)> fnCreatedCallback,
 		const PluginRect *initialWindowPosition,
 		FnDebugLog fnDebugLog,
 		FnStateChangedCallback fnStateChangedCallback,

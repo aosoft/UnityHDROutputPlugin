@@ -149,7 +149,7 @@ namespace HDROutput
 			switch (state)
 			{
 				case PluginStateChanged.CurrentHDRStateChanged:
-					//Repaint();
+					Repaint();
 					break;
 			}
 		}

@@ -6,7 +6,9 @@ DisplayWindow::DisplayWindow() :
 	_updatedTextureCounter(0),
 	_updatedTextureCounterChecker(0),
 	_gammaCollect(false),
-	_topmost(false)
+	_topmost(false),
+	_lastIsHDR(false),
+	_lastGammaCollect(false)
 {
 }
 
@@ -23,7 +25,7 @@ void DisplayWindow::InitializeInstance(
 
 	if (Create(
 		nullptr, ATL::CWindow::rcDefault,
-		L"Unity Preview", WS_OVERLAPPEDWINDOW) == nullptr)
+		L"", WS_OVERLAPPEDWINDOW) == nullptr)
 	{
 		HRException::CheckHR(HRESULT_FROM_WIN32(::GetLastError()));
 	}
@@ -32,6 +34,10 @@ void DisplayWindow::InitializeInstance(
 	_mesh = Mesh::CreateRectangleMesh(_device);
 	_material = std::make_unique<Material>(_device);
 	_renderTarget = std::make_unique<RenderTarget>(m_hWnd, _device);
+
+	_lastIsHDR = _renderTarget->IsAvailableHDR();
+	_lastGammaCollect = _gammaCollect;
+	UpdateWindowText(_lastIsHDR, _lastGammaCollect);
 }
 
 std::shared_ptr<DisplayWindow> DisplayWindow::CreateInstance(
@@ -89,16 +95,30 @@ void DisplayWindow::Render()
 {
 	ComPtr<ID3D11DeviceContext> dc;
 	_device->GetImmediateContext(&dc);
+	bool isHDR = _renderTarget->IsAvailableHDR();
+	bool gammaCollect = _gammaCollect;
 
 	dc->ClearState();
 
 	_material->Setup(
 		dc,
-		_gammaCollect ? _renderTarget->IsAvailableHDR() ?
+		gammaCollect ? isHDR ?
 		PSCode::LinearToBT2100PQ : PSCode::LinearToSRGB : PSCode::PassThrough);
 	_renderTarget->Setup(dc, _material->GetTextureDesc());
 	_mesh->Draw(dc);
 	_renderTarget->Present();
+
+	if (gammaCollect != _lastGammaCollect ||
+		isHDR != _lastIsHDR)
+	{
+		if (isHDR != _lastIsHDR)
+		{
+			StateChangedCallback(PluginStateChanged::CurrentHDRStateChanged);
+		}
+		UpdateWindowText(isHDR, gammaCollect);
+		_lastGammaCollect = gammaCollect;
+		_lastIsHDR = isHDR;
+	}
 }
 
 void DisplayWindow::RenderIfUpdatedSourceTexture()
@@ -181,4 +201,22 @@ catch (const _com_error& e)
 {
 	ErrorLog(_fnDebugLog, e);
 	return 0;
+}
+
+void DisplayWindow::UpdateWindowText(bool isHDR, bool gammaCollect) noexcept try
+{
+	wchar_t tmp[256];
+	swprintf_s(tmp, L"Unity Preview [Output:%s / Convert: %s]",
+		isHDR ? L"HDR" : L"SDR",
+		gammaCollect ? isHDR ?
+		L"Linear -> BT.2100 (PQ)" :
+		L"Linear -> sRGB" :
+		L"None (Pass through)");
+
+	SetWindowText(tmp);
+}
+catch (const std::exception&)
+{
+	SetWindowText(L"");
+	return;
 }

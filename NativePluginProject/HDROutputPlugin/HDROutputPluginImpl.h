@@ -16,7 +16,11 @@ private:
 	FnDebugLog _fnDebugLog;
 	FnStateChangedCallback _fnStateChangedCallback;
 	ComPtr<ID3D11Device> _device;
+
 	ComPtr<ID3D11Texture2D> _sourceTexture;
+	bool _gammaCollect;
+	bool _requestHDR;
+	bool _topmost;
 	bool _asyncRender;
 
 public:

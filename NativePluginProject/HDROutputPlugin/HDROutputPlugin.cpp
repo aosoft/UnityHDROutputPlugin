@@ -16,6 +16,9 @@ void UNITY_INTERFACE_API OnUnityRenderingEvent(int eventId)
 HDROutputPlugin::HDROutputPlugin() :
 	_fnDebugLog(nullptr),
 	_fnStateChangedCallback(nullptr),
+	_gammaCollect(false),
+	_requestHDR(false),
+	_topmost(false),
 	_asyncRender(false)
 {
 }
@@ -70,7 +73,16 @@ void HDROutputPlugin::RunWindowProc(
 	}
 
 	SetApp(std::make_shared<App>());
-	_app->Run(device, _sourceTexture, initialWindowPosition, fnDebugLog, fnStateChangedCallback, retClosedWindowPosition);
+	_app->Run(device,
+		[this](DisplayWindow *w)
+		{
+			w->SetSourceTexture(_sourceTexture);
+			_sourceTexture = nullptr;
+			w->SetGammaCollect(_gammaCollect);
+			w->SetRequestHDR(_requestHDR);
+			w->SetTopmost(_topmost);
+		},
+		initialWindowPosition, fnDebugLog, fnStateChangedCallback, retClosedWindowPosition);
 	SetApp(nullptr);
 }
 catch (const std::exception& e)
@@ -103,19 +115,19 @@ void HDROutputPlugin::CloseWindow() noexcept
 
 PluginBool HDROutputPlugin::GetRequestHDR() noexcept
 {
-	auto app = GetApp();
-	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
-	return ToPluginBool(w != nullptr && w->GetRequestHDR());
+	return ToPluginBool(_requestHDR);
 }
 
 void HDROutputPlugin::SetRequestHDR(PluginBool flag) noexcept
 {
+	auto flag2 = FromPluginBool(flag);
 	auto app = GetApp();
 	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	if (w != nullptr)
 	{
-		w->SetRequestHDR(FromPluginBool(flag));
+		w->SetRequestHDR(flag2);
 	}
+	_requestHDR = flag2;
 }
 
 PluginBool HDROutputPlugin::IsAvailableHDR() noexcept
@@ -127,43 +139,49 @@ PluginBool HDROutputPlugin::IsAvailableHDR() noexcept
 
 PluginBool HDROutputPlugin::GetGammaCollect()
 {
-	auto app = GetApp();
-	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
-	return ToPluginBool(w != nullptr && w->GetGammaCollect());
+	return ToPluginBool(_gammaCollect);
 }
 
 void HDROutputPlugin::SetGammaCollect(PluginBool flag)
 {
+	auto flag2 = FromPluginBool(flag);
 	auto app = GetApp();
 	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	if (w != nullptr)
 	{
-		w->SetGammaCollect(FromPluginBool(flag));
+		w->SetGammaCollect(flag2);
 	}
+	_gammaCollect = flag2;
 }
 
 PluginBool HDROutputPlugin::GetTopmost()
 {
-	auto app = GetApp();
-	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
-	return ToPluginBool(w != nullptr && w->GetTopmost());
+	return ToPluginBool(_topmost);
 }
 
 void HDROutputPlugin::SetTopmost(PluginBool flag)
 {
+	auto flag2 = FromPluginBool(flag);
 	auto app = GetApp();
-	if (app == nullptr)
+	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
+	if (w != nullptr)
 	{
-		return;
-	}
-	app->BeginInvoke([app, flag]()
-	{
-		auto w = app->GetWindow().lock();
-		if (w != nullptr)
+		auto app = GetApp();
+		if (app == nullptr)
 		{
-			w->SetTopmost(FromPluginBool(flag));
+			return;
 		}
-	});
+		app->BeginInvoke([app, flag2]()
+		{
+			auto w = app->GetWindow().lock();
+			if (w != nullptr)
+			{
+				w->SetTopmost(flag2);
+			}
+		});
+	}
+	_topmost = flag2;
+
 }
 
 void HDROutputPlugin::SetSourceTexture(IUnknown *src) noexcept try
@@ -182,7 +200,6 @@ void HDROutputPlugin::SetSourceTexture(IUnknown *src) noexcept try
 	if (w != nullptr)
 	{
 		w->SetSourceTexture(texture);
-		_sourceTexture = nullptr;
 	}
 	else
 	{
