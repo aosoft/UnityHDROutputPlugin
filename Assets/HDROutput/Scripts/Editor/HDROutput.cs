@@ -107,14 +107,15 @@ namespace HDROutput
 				EditorGUI.LabelField(
 					new Rect(0, 168, position.width, 24),
 					string.Format("{0} / {1}", isHDR ? "HDR Output" : "SDR Output", gammaCorrent));
-				if (EditorGUI.EndChangeCheck())
-				{
-					//	property changed
-					_plugin.SetSourceTexture(_texture != null ? _texture.GetNativeTexturePtr() : System.IntPtr.Zero);
-					_plugin.GammaCollect = _gammaCorrect;
-					_plugin.RequestHDR = _requestHDR;
-					_plugin.Topmost = _topmost;
-				}
+			}
+
+			if (EditorGUI.EndChangeCheck())
+			{
+				//	property changed
+				_plugin.SetSourceTexture(_texture != null ? _texture.GetNativeTexturePtr() : System.IntPtr.Zero);
+				_plugin.GammaCollect = _gammaCorrect;
+				_plugin.RequestHDR = _requestHDR;
+				_plugin.Topmost = _topmost;
 			}
 		}
 

@@ -77,7 +77,6 @@ void HDROutputPlugin::RunWindowProc(
 		[this](DisplayWindow *w)
 		{
 			w->SetSourceTexture(_sourceTexture);
-			_sourceTexture = nullptr;
 			w->SetGammaCollect(_gammaCollect);
 			w->SetRequestHDR(_requestHDR);
 			w->SetTopmost(_topmost);
@@ -201,10 +200,7 @@ void HDROutputPlugin::SetSourceTexture(IUnknown *src) noexcept try
 	{
 		w->SetSourceTexture(texture);
 	}
-	else
-	{
-		_sourceTexture = texture;
-	}
+	_sourceTexture = texture;
 }
 catch (const std::exception& e)
 {
