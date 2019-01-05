@@ -110,6 +110,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine,
 	g_plugin->SetD3D11Device(device);
 
 	g_plugin->SetSourceTexture(texture);
+	g_plugin->SetRequestHDR(PluginBool::True);
+	g_plugin->SetGammaCorrect(PluginBool::True);
+
 	PluginRect closed;
 	g_plugin->RunWindowProc(nullptr, DebugLog, StateChangedCallback, &closed);
 

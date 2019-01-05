@@ -24,13 +24,12 @@ RenderTarget::RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device) :
 	_availableHDR(false)
 {
 	ComPtr<IDXGIDevice> dxgidevice;
-	ComPtr<IDXGIAdapter> adapter;
 
 	HRException::CheckNull(device);
 
 	HRException::CheckHR(device->QueryInterface(&dxgidevice));
-	HRException::CheckHR(dxgidevice->GetParent(IID_PPV_ARGS(&adapter)));
-	HRException::CheckHR(adapter->GetParent(IID_PPV_ARGS(&_factory)));
+	HRException::CheckHR(dxgidevice->GetParent(IID_PPV_ARGS(&_adapter)));
+	HRException::CheckHR(_adapter->GetParent(IID_PPV_ARGS(&_factory)));
 }
 
 void RenderTarget::SetRequestHDR(bool flag)
@@ -143,15 +142,45 @@ void RenderTarget::InitializeSwapChain()
 
 	FinalizeSwapChain();
 
+	HMONITOR currentDisplay = ::MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
+
 	ComPtr<IDXGIFactory2> factory2;
 	hr = _factory->QueryInterface(&factory2);
 	if (SUCCEEDED(hr))
 	{
+		bool hdr = false;
+		if (_requestHDR)
+		{
+			for (UINT i = 0; true; i++)
+			{
+				ComPtr<IDXGIOutput> output;
+				if (FAILED(_adapter->EnumOutputs(i, &output)))
+				{
+					break;
+				}
+
+				ComPtr<IDXGIOutput6> output6;
+				if (FAILED(output->QueryInterface(&output6)))
+				{
+					break;
+				}
+
+				DXGI_OUTPUT_DESC1 desc;
+				if (SUCCEEDED(output6->GetDesc1(&desc)) &&
+					desc.Monitor == currentDisplay &&
+					desc.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020)
+				{
+					hdr = true;
+					break;
+				}
+			}
+		}
+
 		auto desc = DXGI_SWAP_CHAIN_DESC1();
 		desc.BufferCount = 2;
 		desc.Width = rect.right - rect.left;
 		desc.Height = rect.bottom - rect.top;
-		desc.Format = _requestHDR ? DXGI_FORMAT_R10G10B10A2_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM;
+		desc.Format = hdr ? DXGI_FORMAT_R10G10B10A2_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.SampleDesc.Count = 1;
@@ -167,7 +196,7 @@ void RenderTarget::InitializeSwapChain()
 			if (SUCCEEDED(swapchain1->QueryInterface(&swapchan3)))
 			{
 				DXGI_COLOR_SPACE_TYPE colorSpace =
-					_requestHDR ? DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020 : DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709;
+					hdr ? DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020 : DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709;
 
 				UINT colorSpaceSupport = 0;
 				if (SUCCEEDED(swapchan3->CheckColorSpaceSupport(colorSpace, &colorSpaceSupport)) &&
@@ -175,7 +204,7 @@ void RenderTarget::InitializeSwapChain()
 				{
 					if (SUCCEEDED(swapchan3->SetColorSpace1(colorSpace)))
 					{
-						_availableHDR = _requestHDR;
+						_availableHDR = hdr;
 					}
 					else
 					{
@@ -218,7 +247,7 @@ void RenderTarget::InitializeSwapChain()
 		_bufferCount = desc.BufferCount;
 	}
 	_rtv = CreateRenderTargetView(_device, _swapchain);
-	_currentDisplay = ::MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
+	_currentDisplay = currentDisplay;
 }
 
 void RenderTarget::FinalizeSwapChain()

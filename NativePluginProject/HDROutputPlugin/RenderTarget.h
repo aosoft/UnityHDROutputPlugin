@@ -2,7 +2,7 @@
 
 #include "common.h"
 #include <d3d11.h>
-#include <dxgi1_4.h>
+#include <dxgi1_6.h>
 
 class RenderTarget
 {
@@ -11,6 +11,7 @@ private:
 
 	HWND _hwnd;
 	ComPtr<IDXGIFactory> _factory;
+	ComPtr<IDXGIAdapter> _adapter;
 	ComPtr<IDXGISwapChain> _swapchain;
 	ComPtr<ID3D11RenderTargetView> _rtv;
 	HMONITOR _currentDisplay;
