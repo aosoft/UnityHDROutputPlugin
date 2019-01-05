@@ -5,10 +5,10 @@ DisplayWindow::DisplayWindow() :
 	_rectWindowClosing(),
 	_updatedTextureCounter(0),
 	_updatedTextureCounterChecker(0),
-	_gammaCollect(false),
+	_gammaCorrect(false),
 	_topmost(false),
 	_lastIsHDR(false),
-	_lastGammaCollect(false)
+	_lastGammaCorrect(false)
 {
 }
 
@@ -36,8 +36,8 @@ void DisplayWindow::InitializeInstance(
 	_renderTarget = std::make_unique<RenderTarget>(m_hWnd, _device);
 
 	_lastIsHDR = _renderTarget->IsAvailableHDR();
-	_lastGammaCollect = _gammaCollect;
-	UpdateWindowText(_lastIsHDR, _lastGammaCollect);
+	_lastGammaCorrect = _gammaCorrect;
+	UpdateWindowText(_lastIsHDR, _lastGammaCorrect);
 }
 
 std::shared_ptr<DisplayWindow> DisplayWindow::CreateInstance(
@@ -96,27 +96,27 @@ void DisplayWindow::Render()
 	ComPtr<ID3D11DeviceContext> dc;
 	_device->GetImmediateContext(&dc);
 	bool isHDR = _renderTarget->IsAvailableHDR();
-	bool gammaCollect = _gammaCollect;
+	bool gammaCorrect = _gammaCorrect;
 
 	dc->ClearState();
 
 	_material->Setup(
 		dc,
-		gammaCollect ? isHDR ?
+		gammaCorrect ? isHDR ?
 		PSCode::LinearToBT2100PQ : PSCode::LinearToSRGB : PSCode::PassThrough);
 	_renderTarget->Setup(dc, _material->GetTextureDesc());
 	_mesh->Draw(dc);
 	_renderTarget->Present();
 
-	if (gammaCollect != _lastGammaCollect ||
+	if (gammaCorrect != _lastGammaCorrect ||
 		isHDR != _lastIsHDR)
 	{
 		if (isHDR != _lastIsHDR)
 		{
 			StateChangedCallback(PluginStateChanged::CurrentHDRStateChanged);
 		}
-		UpdateWindowText(isHDR, gammaCollect);
-		_lastGammaCollect = gammaCollect;
+		UpdateWindowText(isHDR, gammaCorrect);
+		_lastGammaCorrect = gammaCorrect;
 		_lastIsHDR = isHDR;
 	}
 }
@@ -203,12 +203,12 @@ catch (const _com_error& e)
 	return 0;
 }
 
-void DisplayWindow::UpdateWindowText(bool isHDR, bool gammaCollect) noexcept try
+void DisplayWindow::UpdateWindowText(bool isHDR, bool gammaCorrect) noexcept try
 {
 	wchar_t tmp[256];
 	swprintf_s(tmp, L"Unity Preview [Output:%s / Convert: %s]",
 		isHDR ? L"HDR" : L"SDR",
-		gammaCollect ? isHDR ?
+		gammaCorrect ? isHDR ?
 		L"Linear -> BT.2100 (PQ)" :
 		L"Linear -> sRGB" :
 		L"None (Pass through)");

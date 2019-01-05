@@ -18,7 +18,7 @@ private:
 	ComPtr<ID3D11Device> _device;
 
 	ComPtr<ID3D11Texture2D> _sourceTexture;
-	bool _gammaCollect;
+	bool _gammaCorrect;
 	bool _requestHDR;
 	bool _topmost;
 	bool _asyncRender;
@@ -44,8 +44,8 @@ public:
 	virtual void SetRequestHDR(PluginBool flag) noexcept override;
 	virtual PluginBool IsAvailableHDR() noexcept override;
 
-	virtual PluginBool GetGammaCollect() override;
-	virtual void SetGammaCollect(PluginBool flag) override;
+	virtual PluginBool GetGammaCorrect() override;
+	virtual void SetGammaCorrect(PluginBool flag) override;
 
 	virtual PluginBool GetTopmost() override;
 	virtual void SetTopmost(PluginBool flag) override;

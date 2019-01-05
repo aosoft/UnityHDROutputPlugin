@@ -202,6 +202,7 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="SharedTexture.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -268,6 +269,9 @@
   <ItemGroup>
     <None Include="Shader\color.hlsli" />
     <None Include="Shader\common.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="HDROutputPlugin.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

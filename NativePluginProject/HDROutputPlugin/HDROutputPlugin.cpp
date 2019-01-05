@@ -16,7 +16,7 @@ void UNITY_INTERFACE_API OnUnityRenderingEvent(int eventId)
 HDROutputPlugin::HDROutputPlugin() :
 	_fnDebugLog(nullptr),
 	_fnStateChangedCallback(nullptr),
-	_gammaCollect(false),
+	_gammaCorrect(false),
 	_requestHDR(false),
 	_topmost(false),
 	_asyncRender(false)
@@ -77,7 +77,7 @@ void HDROutputPlugin::RunWindowProc(
 		[this](DisplayWindow *w)
 		{
 			w->SetSourceTexture(_sourceTexture);
-			w->SetGammaCollect(_gammaCollect);
+			w->SetGammaCorrect(_gammaCorrect);
 			w->SetRequestHDR(_requestHDR);
 			w->SetTopmost(_topmost);
 		},
@@ -136,21 +136,21 @@ PluginBool HDROutputPlugin::IsAvailableHDR() noexcept
 	return ToPluginBool(w != nullptr && w->IsAvailableHDR());
 }
 
-PluginBool HDROutputPlugin::GetGammaCollect()
+PluginBool HDROutputPlugin::GetGammaCorrect()
 {
-	return ToPluginBool(_gammaCollect);
+	return ToPluginBool(_gammaCorrect);
 }
 
-void HDROutputPlugin::SetGammaCollect(PluginBool flag)
+void HDROutputPlugin::SetGammaCorrect(PluginBool flag)
 {
 	auto flag2 = FromPluginBool(flag);
 	auto app = GetApp();
 	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	if (w != nullptr)
 	{
-		w->SetGammaCollect(flag2);
+		w->SetGammaCorrect(flag2);
 	}
-	_gammaCollect = flag2;
+	_gammaCorrect = flag2;
 }
 
 PluginBool HDROutputPlugin::GetTopmost()
@@ -277,8 +277,8 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetRequestHDR>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetRequestHDR>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,
-		Proxy<PluginBool>::Func<&HDROutputPlugin::GetGammaCollect>,
-		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetGammaCollect>,
+		Proxy<PluginBool>::Func<&HDROutputPlugin::GetGammaCorrect>,
+		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetGammaCorrect>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetTopmost>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetTopmost>,
 		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::SetSourceTexture>,
