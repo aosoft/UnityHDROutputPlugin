@@ -93,6 +93,11 @@ void DisplayWindow::UpdateSourceTexture()
 
 void DisplayWindow::Render()
 {
+	if (_renderTarget->CheckAndInitializeSwapChain() == InitializeSwapChainResult::Uninitialized)
+	{
+		return;
+	}
+
 	ComPtr<ID3D11DeviceContext> dc;
 	_device->GetImmediateContext(&dc);
 	bool isHDR = _renderTarget->IsAvailableHDR();
@@ -168,7 +173,7 @@ LRESULT DisplayWindow::OnMove(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (_renderTarget != nullptr)
 	{
 		bool hdr = _renderTarget->IsAvailableHDR();
-		if (_renderTarget->InitializeSwapChainIfDisplayChanged())
+		if (_renderTarget->InitializeSwapChainIfDisplayChanged() == InitializeSwapChainResult::Initialized)
 		{
 			if (hdr != _renderTarget->IsAvailableHDR())
 			{

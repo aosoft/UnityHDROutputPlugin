@@ -41,18 +41,31 @@ void RenderTarget::SetRequestHDR(bool flag)
 	_requestHDR = flag;
 }
 
+InitializeSwapChainResult RenderTarget::CheckAndInitializeSwapChain()
+{
+	if (_width < 1 || _height < 1 || _rtv == nullptr)
+	{
+		return InitializeSwapChain();
+	}
+	return InitializeSwapChainResult::Initialized;
+}
+
+InitializeSwapChainResult RenderTarget::InitializeSwapChainIfDisplayChanged()
+{
+	if (_currentDisplay != ::MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST))
+	{
+		return InitializeSwapChain();
+	}
+	return InitializeSwapChainResult::DoNotDisplayChanged;
+}
+
 void RenderTarget::Setup(ComPtr<ID3D11DeviceContext> const& dc, uint32_t sourceWidth, uint32_t sourceHeight)
 {
 	HRException::CheckNull(dc);
 
-	if (_width < 1 || _height < 1)
+	if (_width < 1 || _height < 1 || _rtv == nullptr)
 	{
 		return;
-	}
-
-	if (_rtv == nullptr)
-	{
-		InitializeSwapChain();
 	}
 
 	auto vp = D3D11_VIEWPORT();
@@ -101,24 +114,17 @@ void RenderTarget::ResizeBuffer()
 		uint32_t width = rect.right - rect.left;
 		uint32_t height = rect.bottom - rect.top;
 
-		HRException::CheckHR(_swapchain->ResizeBuffers(
-			_bufferCount, width, height, _format,
-			DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+		if (width > 0 && height > 0)
+		{
+			HRException::CheckHR(_swapchain->ResizeBuffers(
+				_bufferCount, width, height, _format,
+				DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+			_rtv = CreateRenderTargetView(_device, _swapchain);
+		}
 		
 		_width = width;
 		_height = height;
-		_rtv = CreateRenderTargetView(_device, _swapchain);
 	}
-}
-
-bool RenderTarget::InitializeSwapChainIfDisplayChanged()
-{
-	if (_currentDisplay != ::MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST))
-	{
-		InitializeSwapChain();
-		return true;
-	}
-	return false;
 }
 
 void RenderTarget::Present()
@@ -129,20 +135,24 @@ void RenderTarget::Present()
 	}
 }
 
-void RenderTarget::InitializeSwapChain()
+InitializeSwapChainResult RenderTarget::InitializeSwapChain()
 {
 	HRESULT hr = S_OK;
+
 	RECT rect;
 	::GetClientRect(_hwnd, &rect);
-
-	if (_factory == nullptr)
-	{
-		return;
-	}
+	uint32_t width = rect.right - rect.left;
+	uint32_t height = rect.bottom - rect.top;
 
 	FinalizeSwapChain();
 
 	HMONITOR currentDisplay = ::MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
+
+	if (width < 1 || height < 1)
+	{
+		_currentDisplay = currentDisplay;
+		return InitializeSwapChainResult::Uninitialized;
+	}
 
 	ComPtr<IDXGIFactory2> factory2;
 	hr = _factory->QueryInterface(&factory2);
@@ -178,8 +188,8 @@ void RenderTarget::InitializeSwapChain()
 
 		auto desc = DXGI_SWAP_CHAIN_DESC1();
 		desc.BufferCount = 2;
-		desc.Width = rect.right - rect.left;
-		desc.Height = rect.bottom - rect.top;
+		desc.Width = width;
+		desc.Height = height;
 		desc.Format = hdr ? DXGI_FORMAT_R10G10B10A2_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -223,8 +233,8 @@ void RenderTarget::InitializeSwapChain()
 	if (_swapchain == nullptr)
 	{
 		auto desc = DXGI_SWAP_CHAIN_DESC();
-		desc.BufferDesc.Width = rect.right - rect.left;
-		desc.BufferDesc.Height = rect.bottom - rect.top;
+		desc.BufferDesc.Width = width;
+		desc.BufferDesc.Height = height;
 		desc.BufferDesc.RefreshRate.Numerator = 60;
 		desc.BufferDesc.RefreshRate.Denominator = 1;
 		desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -248,6 +258,8 @@ void RenderTarget::InitializeSwapChain()
 	}
 	_rtv = CreateRenderTargetView(_device, _swapchain);
 	_currentDisplay = currentDisplay;
+
+	return InitializeSwapChainResult::Initialized;
 }
 
 void RenderTarget::FinalizeSwapChain()
@@ -256,4 +268,7 @@ void RenderTarget::FinalizeSwapChain()
 	_currentDisplay = nullptr;
 	_rtv = nullptr;
 	_availableHDR = false;
+	_format = DXGI_FORMAT_UNKNOWN;
+	_width = 0;
+	_height = 0;
 }

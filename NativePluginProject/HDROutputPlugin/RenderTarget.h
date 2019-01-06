@@ -4,6 +4,13 @@
 #include <d3d11.h>
 #include <dxgi1_6.h>
 
+enum class InitializeSwapChainResult : int32_t
+{
+	Initialized = 0,
+	Uninitialized,
+	DoNotDisplayChanged
+};
+
 class RenderTarget
 {
 private:
@@ -39,6 +46,9 @@ public:
 		return _availableHDR;
 	}
 
+	InitializeSwapChainResult CheckAndInitializeSwapChain();
+	InitializeSwapChainResult InitializeSwapChainIfDisplayChanged();
+
 	void Setup(ComPtr<ID3D11DeviceContext> const& dc, uint32_t sourceWidth, uint32_t sourceHeight);
 
 	void Setup(ComPtr<ID3D11DeviceContext> const& dc, const D3D11_TEXTURE2D_DESC& sourceDesc)
@@ -48,11 +58,10 @@ public:
 
 
 	void ResizeBuffer();
-	bool InitializeSwapChainIfDisplayChanged();
 	void Present();
 
 private:
-	void InitializeSwapChain();
+	InitializeSwapChainResult InitializeSwapChain();
 	void FinalizeSwapChain();
 
 };
