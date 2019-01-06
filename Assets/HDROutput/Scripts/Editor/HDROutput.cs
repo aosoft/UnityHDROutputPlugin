@@ -1,7 +1,8 @@
-﻿#define DYNAMIC_DLL_LOAD
+﻿//#define DYNAMIC_DLL_LOAD
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using UnityEngine;
 using UnityEditor;
@@ -12,6 +13,12 @@ namespace HDROutput
 	{
 #if DYNAMIC_DLL_LOAD
 		private DllManager _dllManager = null;
+#else
+		[DllImport("HDROutputPlugin")]
+		private static extern int CreateHDROutputPluginInstance(System.IntPtr[] buffer, int bufferSize);
+
+		[DllImport("HDROutputPlugin")]
+		private static extern System.IntPtr GetUnityRenderingEvent();
 #endif
 
 		private HDROutputPlugin _plugin = null;
@@ -163,6 +170,8 @@ namespace HDROutput
 			_plugin = new HDROutputPlugin(
 				_dllManager.GetDelegate<FnCreateHDROutputPluginInstance>("CreateHDROutputPluginInstance"),
 				DllManager.GetProxyUnityRenderingEvent());
+#else
+			_plugin = new HDROutputPlugin(CreateHDROutputPluginInstance, GetUnityRenderingEvent());
 #endif
 		}
 
