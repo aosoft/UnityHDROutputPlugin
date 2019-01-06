@@ -5,10 +5,10 @@ DisplayWindow::DisplayWindow() :
 	_rectWindowClosing(),
 	_updatedTextureCounter(0),
 	_updatedTextureCounterChecker(0),
-	_gammaCorrect(false),
+	_convertColorSpace(false),
 	_topmost(false),
 	_lastIsHDR(false),
-	_lastGammaCorrect(false)
+	_lastConvertColorSpace(false)
 {
 }
 
@@ -36,8 +36,8 @@ void DisplayWindow::InitializeInstance(
 	_renderTarget = std::make_unique<RenderTarget>(m_hWnd, _device);
 
 	_lastIsHDR = _renderTarget->IsAvailableHDR();
-	_lastGammaCorrect = _gammaCorrect;
-	UpdateWindowText(_lastIsHDR, _lastGammaCorrect);
+	_lastConvertColorSpace = _convertColorSpace;
+	UpdateWindowText(_lastIsHDR, _lastConvertColorSpace);
 }
 
 std::shared_ptr<DisplayWindow> DisplayWindow::CreateInstance(
@@ -101,27 +101,27 @@ void DisplayWindow::Render()
 	ComPtr<ID3D11DeviceContext> dc;
 	_device->GetImmediateContext(&dc);
 	bool isHDR = _renderTarget->IsAvailableHDR();
-	bool gammaCorrect = _gammaCorrect;
+	bool convertColorSpace = _convertColorSpace;
 
 	dc->ClearState();
 
 	_material->Setup(
 		dc,
-		gammaCorrect ? isHDR ?
+		convertColorSpace ? isHDR ?
 		PSCode::LinearToBT2100PQ : PSCode::LinearToSRGB : PSCode::PassThrough);
 	_renderTarget->Setup(dc, _material->GetTextureDesc());
 	_mesh->Draw(dc);
 	_renderTarget->Present();
 
-	if (gammaCorrect != _lastGammaCorrect ||
+	if (convertColorSpace != _lastConvertColorSpace ||
 		isHDR != _lastIsHDR)
 	{
 		if (isHDR != _lastIsHDR)
 		{
 			StateChangedCallback(PluginStateChanged::CurrentHDRStateChanged);
 		}
-		UpdateWindowText(isHDR, gammaCorrect);
-		_lastGammaCorrect = gammaCorrect;
+		UpdateWindowText(isHDR, convertColorSpace);
+		_lastConvertColorSpace = convertColorSpace;
 		_lastIsHDR = isHDR;
 	}
 }
@@ -208,12 +208,12 @@ catch (const _com_error& e)
 	return 0;
 }
 
-void DisplayWindow::UpdateWindowText(bool isHDR, bool gammaCorrect) noexcept try
+void DisplayWindow::UpdateWindowText(bool isHDR, bool convertColorSpace) noexcept try
 {
 	wchar_t tmp[256];
 	swprintf_s(tmp, L"Unity Preview [Output:%s, Convert: %s]",
 		isHDR ? L"HDR" : L"SDR",
-		gammaCorrect ? isHDR ?
+		convertColorSpace ? isHDR ?
 		L"Linear -> BT.2100 (PQ)" :
 		L"Linear -> sRGB" :
 		L"None (Pass through)");

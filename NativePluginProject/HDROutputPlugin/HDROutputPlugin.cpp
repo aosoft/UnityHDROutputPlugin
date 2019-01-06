@@ -16,7 +16,7 @@ void UNITY_INTERFACE_API OnUnityRenderingEvent(int eventId)
 HDROutputPlugin::HDROutputPlugin() :
 	_fnDebugLog(nullptr),
 	_fnStateChangedCallback(nullptr),
-	_gammaCorrect(false),
+	_convertColorSpace(false),
 	_requestHDR(false),
 	_topmost(false),
 	_asyncRender(false)
@@ -77,7 +77,7 @@ void HDROutputPlugin::RunWindowProc(
 		[this](DisplayWindow *w)
 		{
 			w->SetSourceTexture(_sourceTexture);
-			w->SetGammaCorrect(_gammaCorrect);
+			w->SetConvertColorSpace(_convertColorSpace);
 			w->SetRequestHDR(_requestHDR);
 			w->SetTopmost(_topmost);
 		},
@@ -153,21 +153,21 @@ PluginBool HDROutputPlugin::IsAvailableHDR() noexcept
 	return ToPluginBool(w != nullptr && w->IsAvailableHDR());
 }
 
-PluginBool HDROutputPlugin::GetGammaCorrect()
+PluginBool HDROutputPlugin::GetConvertColorSpace()
 {
-	return ToPluginBool(_gammaCorrect);
+	return ToPluginBool(_convertColorSpace);
 }
 
-void HDROutputPlugin::SetGammaCorrect(PluginBool flag)
+void HDROutputPlugin::SetConvertColorSpace(PluginBool flag)
 {
 	auto flag2 = FromPluginBool(flag);
 	auto app = GetApp();
 	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	if (w != nullptr)
 	{
-		w->SetGammaCorrect(flag2);
+		w->SetConvertColorSpace(flag2);
 	}
-	_gammaCorrect = flag2;
+	_convertColorSpace = flag2;
 }
 
 PluginBool HDROutputPlugin::GetTopmost()
@@ -298,8 +298,8 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetRequestHDR>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetRequestHDR>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,
-		Proxy<PluginBool>::Func<&HDROutputPlugin::GetGammaCorrect>,
-		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetGammaCorrect>,
+		Proxy<PluginBool>::Func<&HDROutputPlugin::GetConvertColorSpace>,
+		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetConvertColorSpace>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetTopmost>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetTopmost>,
 		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::SetSourceTexture>,

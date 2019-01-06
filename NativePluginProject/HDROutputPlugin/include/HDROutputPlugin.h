@@ -91,8 +91,8 @@ public:
 	virtual void SetRequestHDR(PluginBool flag) noexcept = 0;
 	virtual PluginBool IsAvailableHDR() noexcept = 0;
 
-	virtual PluginBool GetGammaCorrect() = 0;
-	virtual void SetGammaCorrect(PluginBool flag) = 0;
+	virtual PluginBool GetConvertColorSpace() = 0;
+	virtual void SetConvertColorSpace(PluginBool flag) = 0;
 
 	virtual PluginBool GetTopmost() = 0;
 	virtual void SetTopmost(PluginBool flag) = 0;

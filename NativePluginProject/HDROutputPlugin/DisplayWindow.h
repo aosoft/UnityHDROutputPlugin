@@ -32,11 +32,11 @@ private:
 	std::unique_ptr<Material> _material;
 	std::unique_ptr<RenderTarget> _renderTarget;
 
-	bool _gammaCorrect;
+	bool _convertColorSpace;
 	bool _topmost;
 
 	bool _lastIsHDR;
-	bool _lastGammaCorrect;
+	bool _lastConvertColorSpace;
 
 public:
 	BEGIN_MSG_MAP(DisplayWindow)
@@ -84,14 +84,14 @@ public:
 		return _renderTarget->IsAvailableHDR();
 	}
 
-	bool GetGammaCorrect() const
+	bool GetConvertColorSpace() const
 	{
-		return _gammaCorrect;
+		return _convertColorSpace;
 	}
 
-	void SetGammaCorrect(bool flag)
+	void SetConvertColorSpace(bool flag)
 	{
-		_gammaCorrect = flag;
+		_convertColorSpace = flag;
 	}
 
 	bool GetTopmost() const
@@ -117,7 +117,7 @@ public:
 	LRESULT OnSize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
-	void UpdateWindowText(bool isHDR, bool gammaCorrect) noexcept;
+	void UpdateWindowText(bool isHDR, bool convertColorSpace) noexcept;
 
 	void StateChangedCallback(PluginStateChanged state)
 	{

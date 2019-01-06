@@ -59,8 +59,8 @@ namespace HDROutput
 		private FnGetFlag _fnGetRequestHDR;
 		private FnSetFlag _fnSetRequestHDR;
 		private FnGetFlag _fnIsAvailableHDR;
-		private FnGetFlag _fnGetGammaCorrect;
-		private FnSetFlag _fnSetGammaCorrect;
+		private FnGetFlag _fnGetConvertColorSpace;
+		private FnSetFlag _fnSetConvertColorSpace;
 		private FnGetFlag _fnGetTopmost;
 		private FnSetFlag _fnSetTopmost;
 		private FnSetSourceTexture _fnSetSourceTexture;
@@ -88,8 +88,8 @@ namespace HDROutput
 			_fnGetRequestHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[4]);
 			_fnSetRequestHDR = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[5]);
 			_fnIsAvailableHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[6]);
-			_fnGetGammaCorrect = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[7]);
-			_fnSetGammaCorrect = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[8]);
+			_fnGetConvertColorSpace = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[7]);
+			_fnSetConvertColorSpace = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[8]);
 			_fnGetTopmost = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[9]);
 			_fnSetTopmost = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[10]);
 			_fnSetSourceTexture = Marshal.GetDelegateForFunctionPointer<FnSetSourceTexture>(buffer[11]);
@@ -162,16 +162,16 @@ namespace HDROutput
 			}
 		}
 
-		public bool GammaCorrect
+		public bool ConvertColorSpace
 		{
 			get
 			{
-				return _fnGetGammaCorrect(_self).ToBool();
+				return _fnGetConvertColorSpace(_self).ToBool();
 			}
 
 			set
 			{
-				_fnSetGammaCorrect(_self, value.ToPluginBool());
+				_fnSetConvertColorSpace(_self, value.ToPluginBool());
 			}
 		}
 
