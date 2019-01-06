@@ -120,13 +120,30 @@ PluginBool HDROutputPlugin::GetRequestHDR() noexcept
 void HDROutputPlugin::SetRequestHDR(PluginBool flag) noexcept
 {
 	auto flag2 = FromPluginBool(flag);
+	if (flag2 == _requestHDR)
+	{
+		return;
+	}
 	auto app = GetApp();
 	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	if (w != nullptr)
 	{
-		w->SetRequestHDR(flag2);
+		auto app = GetApp();
+		if (app == nullptr)
+		{
+			return;
+		}
+		app->BeginInvoke([app, flag2]()
+		{
+			auto w = app->GetWindow().lock();
+			if (w != nullptr)
+			{
+				w->SetRequestHDR(flag2);
+			}
+		});
 	}
 	_requestHDR = flag2;
+
 }
 
 PluginBool HDROutputPlugin::IsAvailableHDR() noexcept
@@ -161,6 +178,10 @@ PluginBool HDROutputPlugin::GetTopmost()
 void HDROutputPlugin::SetTopmost(PluginBool flag)
 {
 	auto flag2 = FromPluginBool(flag);
+	if (flag2 == _topmost)
+	{
+		return;
+	}
 	auto app = GetApp();
 	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
 	if (w != nullptr)
