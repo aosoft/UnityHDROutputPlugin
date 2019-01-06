@@ -23,6 +23,7 @@ namespace HDROutput
 
 		private HDROutputPlugin _plugin = null;
 		private Thread _thread = null;
+		private SynchronizationContext _synccontext = null;
 		private bool _isActiveThread = false;
 
 		[SerializeField]
@@ -80,6 +81,7 @@ namespace HDROutput
 			{
 				if (_thread == null || _thread.Join(1))
 				{
+					_synccontext = SynchronizationContext.Current;
 					_thread = new Thread(
 						() =>
 						{
@@ -91,6 +93,7 @@ namespace HDROutput
 							finally
 							{
 								_isActiveThread = false;
+								_synccontext = null;
 							}
 						});
 					_thread.Start();
@@ -154,12 +157,15 @@ namespace HDROutput
 
 		private void OnPluginStateChanged(PluginStateChanged state)
 		{
-			switch (state)
+			_synccontext?.Post(_ =>
 			{
-				case PluginStateChanged.CurrentHDRStateChanged:
-					Repaint();
-					break;
-			}
+				switch (state)
+				{
+					case PluginStateChanged.CurrentHDRStateChanged:
+						Repaint();
+						break;
+				}
+			}, null);
 		}
 
 		private void InitializePlugin()
