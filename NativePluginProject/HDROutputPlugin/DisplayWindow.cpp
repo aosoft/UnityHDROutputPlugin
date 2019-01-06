@@ -211,7 +211,7 @@ catch (const _com_error& e)
 void DisplayWindow::UpdateWindowText(bool isHDR, bool gammaCorrect) noexcept try
 {
 	wchar_t tmp[256];
-	swprintf_s(tmp, L"Unity Preview [Output:%s / Convert: %s]",
+	swprintf_s(tmp, L"Unity Preview [Output:%s, Convert: %s]",
 		isHDR ? L"HDR" : L"SDR",
 		gammaCorrect ? isHDR ?
 		L"Linear -> BT.2100 (PQ)" :

@@ -33,7 +33,7 @@ namespace HDROutput
 		[SerializeField]
 		private UnityEngine.RectInt? _previewWindowRect = null;
 
-		[MenuItem("Window/HDR Display Output")]
+		[MenuItem("Window/HDR Display Output", false, 10000)]
 		public static void Open()
 		{
 			GetWindow<HDROutput>("HDR Display");
@@ -93,20 +93,20 @@ namespace HDROutput
 			_texture = EditorGUI.ObjectField(new Rect(0, 32, position.width / 2, 64), "Source Texture", _texture, typeof(Texture), true) as Texture;
 
 			_gammaCorrect = EditorGUI.Toggle(new Rect(0, 96, position.width, 24), "Gamma Correct", _gammaCorrect);
-			_requestHDR = EditorGUI.Toggle(new Rect(0, 120, position.width, 24), "Request HDR", _requestHDR);
+			_requestHDR = EditorGUI.Toggle(new Rect(0, 120, position.width, 24), "Request HDR Output", _requestHDR);
 			_topmost = EditorGUI.Toggle(new Rect(0, 144, position.width, 24), "Top most", _topmost);
 
 			if (_isActiveThread)
 			{
 				var isHDR = _plugin.IsAvailableHDR;
-				var gammaCorrent = _gammaCorrect ? isHDR ?
-					"Linear -> BT.2100 (PQ)" :
-					"Linear -> sRGB" :
+				var gammaCorrect = _gammaCorrect ? isHDR ?
+					"BT.709 / Linear -> BT.2100 / PQ" :
+					"BT.709 / Linear -> BT.709 / sRGB" :
 					"None (Pass through)";
 
 				EditorGUI.LabelField(
 					new Rect(0, 168, position.width, 24),
-					string.Format("{0} / {1}", isHDR ? "HDR Output" : "SDR Output", gammaCorrent));
+					string.Format("Output:{0}, ColorSpace Converter:{1}", isHDR ? "HDR" : "SDR", gammaCorrect));
 			}
 
 			if (EditorGUI.EndChangeCheck())
