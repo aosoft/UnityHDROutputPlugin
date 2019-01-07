@@ -104,7 +104,7 @@ namespace HDROutput
 
 			_convertColorSpace = EditorGUI.Toggle(new Rect(0, 96, position.width, 24), "Convert Color Space", _convertColorSpace);
 			_requestHDR = EditorGUI.Toggle(new Rect(0, 120, position.width, 24), "Request HDR Output", _requestHDR);
-			_topmost = EditorGUI.Toggle(new Rect(0, 144, position.width, 24), "Top most", _topmost);
+			_topmost = EditorGUI.Toggle(new Rect(0, 144, position.width, 24), "Topmost", _topmost);
 
 			if (_isActiveThread)
 			{
