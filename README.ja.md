@@ -55,14 +55,11 @@ HDR レンダリングした SDR 範囲を超える色は SDR ディスプレイ
 
 ## 使用時の注意
 
-現時点では Direct3D 11 のみに対応しています。
-
-Post Processing Stack を含め、多くの場合では最終的な出力映像ではトーンマッピングにより SDR に最適化した映像が出力されます。そのような映像はこのプラグインで HDR 出力をしても SDR と同じ映像が表示されます。従ってこのプラグインを有効に利用するには SDR へのトーンマッピングを無効化する必要があります。
-
-Post Processing Stack v2 のトーンマッピングを無効にするには Post Process Volume の "Color Grading" の設定を変更します。
-
-* Color Grading 自体を無効にする。
-* Mode を "None" にする。
+* 現時点では Direct3D 11 のみに対応しています。
+* 多くの場合、最終的な出力映像ではトーンマッピングにより SDR に最適化した映像が出力されます。そのような映像はこのプラグインで HDR 出力をしても SDR で出力したものと同じ見栄えで表示されます。従ってこのプラグインを有効に利用するには SDR へのトーンマッピングを無効化する必要があります。
+    * Post Processing Stack v2 のトーンマッピングを無効にするには Post Process Volume の "Color Grading" の設定を変更します。
+        * Color Grading 自体を無効にする。
+        * Mode を "None" にする。
 
 ## ライセンス
 

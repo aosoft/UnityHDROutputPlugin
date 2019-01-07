@@ -52,6 +52,13 @@ It can be output with SDR even in non-HDR compatible environment.
 * Topmost
     Set to the topmost window.
 
+## Notes
+
+* Currently, supported Direct3D 11 only.
+* In many cases, images optimized for SDR are output by tone mapping. The same as the SDR output will be displayed even if you output that images to HDR. Therefore, in order to make effective use of this plugin, it is necessary to invalidate tone mapping to SDR.
+    * ex) To disable Post Processing Stack v2 tone mapping, change the "Color Grading" setting of Post Process Volume.
+        * Disable Color Grading itself.
+        * Set Mode to "None".
 
 ## License
 
