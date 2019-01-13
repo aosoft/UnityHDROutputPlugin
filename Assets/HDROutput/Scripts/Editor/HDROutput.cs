@@ -21,6 +21,12 @@ namespace HDROutput
 		private static extern System.IntPtr GetUnityRenderingEvent();
 #endif
 
+		[DllImport("user32.dll")]
+		private static extern System.IntPtr GetAncestor(System.IntPtr hwnd, int flags);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		static extern System.IntPtr GetActiveWindow();
+
 		private HDROutputPlugin _plugin = null;
 		private Thread _thread = null;
 		private SynchronizationContext _synccontext = null;
@@ -82,13 +88,18 @@ namespace HDROutput
 				if (_thread == null || _thread.Join(1))
 				{
 					_synccontext = SynchronizationContext.Current;
+					var parent = GetActiveWindow();
+					if (parent != System.IntPtr.Zero)
+					{
+						parent = GetAncestor(parent, 3);
+					}
 					_thread = new Thread(
 						() =>
 						{
 							_isActiveThread = true;
 							try
 							{
-								_previewWindowRect = _plugin.RunWindowProc(_previewWindowRect, OnDebugLog, OnPluginStateChanged);
+								_previewWindowRect = _plugin.RunWindowProc(parent, _previewWindowRect, OnDebugLog, OnPluginStateChanged);
 							}
 							finally
 							{

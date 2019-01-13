@@ -80,6 +80,7 @@ public:
 	virtual void Destroy() noexcept = 0;
 
 	virtual void RunWindowProc(
+		HWND wndParent,
 		const PluginRect *initialWindowPosition,
 		FnDebugLog fnDebugLog,
 		FnStateChangedCallback fnStateChangedCallback,

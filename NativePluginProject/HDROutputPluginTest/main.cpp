@@ -114,7 +114,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine,
 	g_plugin->SetConvertColorSpace(PluginBool::True);
 
 	PluginRect closed;
-	g_plugin->RunWindowProc(nullptr, DebugLog, StateChangedCallback, &closed);
+	g_plugin->RunWindowProc(nullptr, nullptr, DebugLog, StateChangedCallback, &closed);
 
 	dc->ClearState();
 	g_plugin->Destroy();

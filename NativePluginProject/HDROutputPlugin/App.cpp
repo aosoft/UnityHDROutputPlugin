@@ -11,6 +11,7 @@ App::~App()
 }
 
 void App::Run(
+	HWND wndParent,
 	ComPtr<ID3D11Device> const& unityDevice,
 	std::function<void(DisplayWindow *)> fnCreatedCallback,
 	const PluginRect *initialWindowPosition,
@@ -67,7 +68,7 @@ void App::Run(
 		}
 	}*/
 
-	auto w = DisplayWindow::CreateInstance(device, fnDebugLog, fnStateChangedCallback);
+	auto w = DisplayWindow::CreateInstance(wndParent, device, fnDebugLog, fnStateChangedCallback);
 	auto sharedTexture = std::make_shared<SharedTexture>(device);
 
 	if (initialWindowPosition != nullptr)

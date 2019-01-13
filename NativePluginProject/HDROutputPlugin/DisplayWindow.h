@@ -50,12 +50,14 @@ public:
 private:
 	DisplayWindow();
 	void InitializeInstance(
+		HWND wndParent,
 		ID3D11Device *device,
 		FnDebugLog fnDebugLog,
 		FnStateChangedCallback fnStateChangedCallback);
 
 public:
 	static std::shared_ptr<DisplayWindow> CreateInstance(
+		HWND wndParent,
 		ID3D11Device *device,
 		FnDebugLog fnDebugLog,
 		FnStateChangedCallback fnStateChangedCallback);

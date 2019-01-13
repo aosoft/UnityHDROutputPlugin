@@ -56,6 +56,7 @@ void HDROutputPlugin::Destroy() noexcept
 }
 
 void HDROutputPlugin::RunWindowProc(
+	HWND wndParent,
 	const PluginRect *initialWindowPosition,
 	FnDebugLog fnDebugLog,
 	FnStateChangedCallback fnStateChangedCallback,
@@ -73,7 +74,7 @@ void HDROutputPlugin::RunWindowProc(
 	}
 
 	SetApp(std::make_shared<App>());
-	_app->Run(device,
+	_app->Run(wndParent, device,
 		[this](DisplayWindow *w)
 		{
 			w->SetSourceTexture(_sourceTexture);
@@ -293,7 +294,7 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 	static const void_ptr funcs[] =
 	{
 		Proxy<void>::Func<&HDROutputPlugin::Destroy>,
-		Proxy<void, const PluginRect *, FnDebugLog, FnStateChangedCallback, PluginRect *>::Func<&HDROutputPlugin::RunWindowProc>,
+		Proxy<void, HWND, const PluginRect *, FnDebugLog, FnStateChangedCallback, PluginRect *>::Func<&HDROutputPlugin::RunWindowProc>,
 		Proxy<void>::Func<&HDROutputPlugin::CloseWindow>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetRequestHDR>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetRequestHDR>,

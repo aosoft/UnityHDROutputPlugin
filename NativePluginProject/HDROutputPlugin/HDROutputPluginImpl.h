@@ -33,6 +33,7 @@ public:
 	virtual void Destroy() noexcept override;
 
 	virtual void RunWindowProc(
+		HWND wndParent,
 		const PluginRect *initialWindowPosition,
 		FnDebugLog fnDebugLog,
 		FnStateChangedCallback fnStateChangedCallback,

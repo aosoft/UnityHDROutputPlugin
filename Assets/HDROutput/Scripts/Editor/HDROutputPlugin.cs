@@ -45,8 +45,8 @@ namespace HDROutput
 		private delegate PluginBool FnGetFlag(IntPtr self);
 		private delegate void FnSetFlag(IntPtr self, PluginBool flag);
 
-		private delegate void FnRunWindowProc(IntPtr self, [In] ref PluginRect rect, IntPtr fnDebugLog, IntPtr fnStateChangedCallback, out PluginRect retLastRect);
-		private delegate void FnRunWindowProcPtr(IntPtr self, IntPtr rect, IntPtr fnDebugLog, IntPtr fnStateChangedCallback, out PluginRect retLastRect);
+		private delegate void FnRunWindowProc(IntPtr self, IntPtr wndParent, [In] ref PluginRect rect, IntPtr fnDebugLog, IntPtr fnStateChangedCallback, out PluginRect retLastRect);
+		private delegate void FnRunWindowProcPtr(IntPtr self, IntPtr wndParent, IntPtr rect, IntPtr fnDebugLog, IntPtr fnStateChangedCallback, out PluginRect retLastRect);
 
 		private delegate void FnSetSourceTexture(IntPtr self, IntPtr texture);
 		private delegate IntPtr FnRequestAsyncUpdateSourceTexture(IntPtr self);
@@ -105,6 +105,7 @@ namespace HDROutput
 		}
 
 		public UnityEngine.RectInt RunWindowProc(
+			IntPtr wndParent,
 			UnityEngine.RectInt? initialPosition,
 			FnDebugLog fnDebugLogFunc, FnStateChangedCallback fnStateChangedCallback)
 		{
@@ -126,11 +127,11 @@ namespace HDROutput
 				rect.Width = initialPosition.Value.width;
 				rect.Height = initialPosition.Value.height;
 
-				_fnRunWindowProc(_self, ref rect, pfnDebugLogFunc, pfnStateChangedCallback, out retLastRect);
+				_fnRunWindowProc(_self, wndParent, ref rect, pfnDebugLogFunc, pfnStateChangedCallback, out retLastRect);
 			}
 			else
 			{
-				_fnRunWindowProcPtr(_self, IntPtr.Zero, pfnDebugLogFunc, pfnStateChangedCallback, out retLastRect);
+				_fnRunWindowProcPtr(_self, wndParent, IntPtr.Zero, pfnDebugLogFunc, pfnStateChangedCallback, out retLastRect);
 			}
 
 			return new UnityEngine.RectInt(retLastRect.X, retLastRect.Y, retLastRect.Width, retLastRect.Height);

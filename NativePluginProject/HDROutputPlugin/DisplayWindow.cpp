@@ -13,6 +13,7 @@ DisplayWindow::DisplayWindow() :
 }
 
 void DisplayWindow::InitializeInstance(
+	HWND wndParent,
 	ID3D11Device *device,
 	FnDebugLog fnDebugLog,
 	FnStateChangedCallback fnStateChangedCallback)
@@ -24,7 +25,7 @@ void DisplayWindow::InitializeInstance(
 	_fnStateChangedCallback = fnStateChangedCallback;
 
 	if (Create(
-		nullptr, ATL::CWindow::rcDefault,
+		wndParent, ATL::CWindow::rcDefault,
 		L"", WS_OVERLAPPEDWINDOW) == nullptr)
 	{
 		HRException::CheckHR(HRESULT_FROM_WIN32(::GetLastError()));
@@ -41,6 +42,7 @@ void DisplayWindow::InitializeInstance(
 }
 
 std::shared_ptr<DisplayWindow> DisplayWindow::CreateInstance(
+	HWND wndParent,
 	ID3D11Device *device,
 	FnDebugLog fnDebugLog,
 	FnStateChangedCallback fnStateChangedCallback)
@@ -50,7 +52,7 @@ std::shared_ptr<DisplayWindow> DisplayWindow::CreateInstance(
 	};
 
 	auto ret = std::make_shared<DisplayWindowImpl>();
-	ret->InitializeInstance(device, fnDebugLog, fnStateChangedCallback);
+	ret->InitializeInstance(wndParent, device, fnDebugLog, fnStateChangedCallback);
 	return ret;
 }
 

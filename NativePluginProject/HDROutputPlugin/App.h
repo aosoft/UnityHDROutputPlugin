@@ -28,6 +28,7 @@ public:
 	}
 
 	void Run(
+		HWND wndParent,
 		ComPtr<ID3D11Device> const& unityDevice,
 		std::function<void(DisplayWindow *)> fnCreatedCallback,
 		const PluginRect *initialWindowPosition,
