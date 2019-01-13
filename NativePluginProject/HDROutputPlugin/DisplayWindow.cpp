@@ -6,7 +6,6 @@ DisplayWindow::DisplayWindow() :
 	_updatedTextureCounter(0),
 	_updatedTextureCounterChecker(0),
 	_convertColorSpace(false),
-	_topmost(false),
 	_lastIsHDR(false),
 	_lastConvertColorSpace(false)
 {
@@ -64,20 +63,6 @@ void DisplayWindow::SetRequestHDR(bool flag)
 	{
 		StateChangedCallback(PluginStateChanged::CurrentHDRStateChanged);
 	}
-}
-
-void DisplayWindow::SetTopmost(bool flag)
-{
-	if (flag == _topmost)
-	{
-		return;
-	}
-
-	SetWindowPos(flag ? HWND_TOPMOST : HWND_NOTOPMOST,
-		0, 0, 0, 0,
-		SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-
-	_topmost = flag;
 }
 
 void DisplayWindow::SetSourceTexture(ComPtr<ID3D11Texture2D> const& source)

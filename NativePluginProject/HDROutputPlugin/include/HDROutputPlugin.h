@@ -95,9 +95,6 @@ public:
 	virtual PluginBool GetConvertColorSpace() = 0;
 	virtual void SetConvertColorSpace(PluginBool flag) = 0;
 
-	virtual PluginBool GetTopmost() = 0;
-	virtual void SetTopmost(PluginBool flag) = 0;
-
 	virtual void SetSourceTexture(IUnknown *src) noexcept = 0;
 	virtual void UpdateSourceTextureDirect() noexcept = 0;
 

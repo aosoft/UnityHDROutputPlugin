@@ -18,7 +18,6 @@ HDROutputPlugin::HDROutputPlugin() :
 	_fnStateChangedCallback(nullptr),
 	_convertColorSpace(false),
 	_requestHDR(false),
-	_topmost(false),
 	_asyncRender(false)
 {
 }
@@ -80,7 +79,6 @@ void HDROutputPlugin::RunWindowProc(
 			w->SetSourceTexture(_sourceTexture);
 			w->SetConvertColorSpace(_convertColorSpace);
 			w->SetRequestHDR(_requestHDR);
-			w->SetTopmost(_topmost);
 		},
 		initialWindowPosition, fnDebugLog, fnStateChangedCallback, retClosedWindowPosition);
 	SetApp(nullptr);
@@ -169,40 +167,6 @@ void HDROutputPlugin::SetConvertColorSpace(PluginBool flag)
 		w->SetConvertColorSpace(flag2);
 	}
 	_convertColorSpace = flag2;
-}
-
-PluginBool HDROutputPlugin::GetTopmost()
-{
-	return ToPluginBool(_topmost);
-}
-
-void HDROutputPlugin::SetTopmost(PluginBool flag)
-{
-	auto flag2 = FromPluginBool(flag);
-	if (flag2 == _topmost)
-	{
-		return;
-	}
-	auto app = GetApp();
-	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
-	if (w != nullptr)
-	{
-		auto app = GetApp();
-		if (app == nullptr)
-		{
-			return;
-		}
-		app->BeginInvoke([app, flag2]()
-		{
-			auto w = app->GetWindow().lock();
-			if (w != nullptr)
-			{
-				w->SetTopmost(flag2);
-			}
-		});
-	}
-	_topmost = flag2;
-
 }
 
 void HDROutputPlugin::SetSourceTexture(IUnknown *src) noexcept try
@@ -301,8 +265,6 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetConvertColorSpace>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetConvertColorSpace>,
-		Proxy<PluginBool>::Func<&HDROutputPlugin::GetTopmost>,
-		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetTopmost>,
 		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::SetSourceTexture>,
 		Proxy<void>::Func<&HDROutputPlugin::UpdateSourceTextureDirect>,
 		Proxy<void>::Func<&HDROutputPlugin::RequestAsyncUpdateSourceTexture>,

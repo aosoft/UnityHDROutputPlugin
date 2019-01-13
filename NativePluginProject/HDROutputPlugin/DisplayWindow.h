@@ -33,7 +33,6 @@ private:
 	std::unique_ptr<RenderTarget> _renderTarget;
 
 	bool _convertColorSpace;
-	bool _topmost;
 
 	bool _lastIsHDR;
 	bool _lastConvertColorSpace;
@@ -95,14 +94,6 @@ public:
 	{
 		_convertColorSpace = flag;
 	}
-
-	bool GetTopmost() const
-	{
-		return _topmost;
-	}
-
-	void SetTopmost(bool flag);
-
 
 	void SetSourceTexture(ComPtr<ID3D11Texture2D> const& source);
 	void UpdateSourceTexture();

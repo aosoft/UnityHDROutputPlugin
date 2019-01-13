@@ -42,9 +42,6 @@ namespace HDROutput
 		private bool _convertColorSpace = false;
 
 		[SerializeField]
-		private bool _topmost = false;
-
-		[SerializeField]
 		private UnityEngine.RectInt? _previewWindowRect = null;
 
 		[MenuItem("Window/HDR Display Output", false, 10000)]
@@ -115,7 +112,6 @@ namespace HDROutput
 
 			_convertColorSpace = EditorGUI.Toggle(new Rect(0, 96, position.width, 24), "Convert Color Space", _convertColorSpace);
 			_requestHDR = EditorGUI.Toggle(new Rect(0, 120, position.width, 24), "Request HDR Output", _requestHDR);
-			_topmost = EditorGUI.Toggle(new Rect(0, 144, position.width, 24), "Topmost", _topmost);
 
 			if (_isActiveThread)
 			{
@@ -136,7 +132,6 @@ namespace HDROutput
 				_plugin.SetSourceTexture(_texture != null ? _texture.GetNativeTexturePtr() : System.IntPtr.Zero);
 				_plugin.ConvertColorSpace = _convertColorSpace;
 				_plugin.RequestHDR = _requestHDR;
-				_plugin.Topmost = _topmost;
 			}
 		}
 

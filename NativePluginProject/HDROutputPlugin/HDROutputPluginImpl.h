@@ -20,7 +20,6 @@ private:
 	ComPtr<ID3D11Texture2D> _sourceTexture;
 	bool _convertColorSpace;
 	bool _requestHDR;
-	bool _topmost;
 	bool _asyncRender;
 
 public:
@@ -47,9 +46,6 @@ public:
 
 	virtual PluginBool GetConvertColorSpace() override;
 	virtual void SetConvertColorSpace(PluginBool flag) override;
-
-	virtual PluginBool GetTopmost() override;
-	virtual void SetTopmost(PluginBool flag) override;
 
 	virtual void SetSourceTexture(IUnknown *src) noexcept override;
 	virtual void UpdateSourceTextureDirect() noexcept override;
