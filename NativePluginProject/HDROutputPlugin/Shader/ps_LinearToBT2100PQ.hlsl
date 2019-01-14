@@ -7,6 +7,6 @@ float4 main(PS_INPUT input) : SV_Target
 	const float st2084max = 10000.0;
 	const float hdrScalar = standardNits / st2084max;
 
-	float4 color = tex.Sample(texSampler, input.uv);
+	float4 color = GetPixel(input.uv);
 	return float4(LinearToST2084(Rec709ToRec2020(color.rgb) * hdrScalar), 1.0);
 }

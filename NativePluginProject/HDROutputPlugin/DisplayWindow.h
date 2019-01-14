@@ -98,6 +98,16 @@ public:
 	void SetSourceTexture(ComPtr<ID3D11Texture2D> const& source);
 	void UpdateSourceTexture();
 
+	float GetRelativeEV() const noexcept
+	{
+		return _material->GetRelativeEV();
+	}
+
+	void SetRelativeEV(float value) noexcept
+	{
+		_material->SetRelativeEV(value);
+	}
+
 	void Render();
 	void RenderIfUpdatedSourceTexture();
 

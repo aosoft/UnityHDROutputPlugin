@@ -12,6 +12,17 @@ enum class PSCode : int32_t
 	LinearToBT2100PQ
 };
 
+#pragma pack(push, 16)
+
+struct MaterialConstants
+{
+	float relativeEV;
+
+	float dummy[3];
+};
+
+#pragma pack(pop)
+
 class Material
 {
 private:
@@ -25,6 +36,9 @@ private:
 	D3D11_TEXTURE2D_DESC _descTexture;
 	ComPtr<ID3D11Texture2D> _texture;
 	ComPtr<ID3D11ShaderResourceView> _srv;
+
+	MaterialConstants _constants;
+	ComPtr<ID3D11Buffer> _constantsBuffer;
 
 	ComPtr<ID3D11SamplerState> _sampler;
 	ComPtr<ID3D11BlendState> _blend;
@@ -43,6 +57,16 @@ public:
 	}
 
 	void SetTexture(ComPtr<ID3D11Texture2D> const& texture);
+
+	float GetRelativeEV() const noexcept
+	{
+		return _constants.relativeEV;
+	}
+
+	void SetRelativeEV(float value) noexcept
+	{
+		_constants.relativeEV = value;
+	}
 
 	void Setup(ComPtr<ID3D11DeviceContext> const& dc, PSCode pscode);
 };

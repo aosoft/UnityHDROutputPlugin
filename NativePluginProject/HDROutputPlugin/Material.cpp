@@ -8,6 +8,7 @@
 Material::Material(ComPtr<ID3D11Device> const& device) :
 	_device(device),
 	_descTexture(),
+	_constants(),
 	_pscode(PSCode::PassThrough)
 {
 	HRException::CheckNull(device);
@@ -15,6 +16,9 @@ Material::Material(ComPtr<ID3D11Device> const& device) :
 	_layout = MeshVertex::CreateInputLayout(device, g_shaderbin_vs, sizeof(g_shaderbin_vs));
 	HRException::CheckHR(device->CreateVertexShader(g_shaderbin_vs, sizeof(g_shaderbin_vs), nullptr, &_vs));
 
+	HRException::CheckHR(device->CreateBuffer(
+		&CD3D11_BUFFER_DESC(sizeof(_constants), D3D11_BIND_CONSTANT_BUFFER, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE),
+		nullptr, &_constantsBuffer));
 	HRException::CheckHR(device->CreateSamplerState(&CD3D11_SAMPLER_DESC(CD3D11_DEFAULT()), &_sampler));
 	HRException::CheckHR(device->CreateBlendState(&CD3D11_BLEND_DESC(CD3D11_DEFAULT()), &_blend));
 	
@@ -160,8 +164,14 @@ void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, PSCode pscode)
 		_pscode = pscode;
 	}
 
+	D3D11_MAPPED_SUBRESOURCE resource;
+	HRException::CheckHR(dc->Map(_constantsBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource));
+	memcpy(resource.pData, &_constants, sizeof(_constants));
+	dc->Unmap(_constantsBuffer, 0);
+
 	dc->PSSetShader(_ps, nullptr, 0);
 	dc->PSSetSamplers(0, 1, &_sampler.GetInterfacePtr());
+	dc->PSSetConstantBuffers(0, 1, &_constantsBuffer.GetInterfacePtr());
 
 	if (_srv != nullptr)
 	{

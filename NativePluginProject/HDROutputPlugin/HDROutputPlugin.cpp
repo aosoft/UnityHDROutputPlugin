@@ -18,6 +18,7 @@ HDROutputPlugin::HDROutputPlugin() :
 	_fnStateChangedCallback(nullptr),
 	_convertColorSpace(false),
 	_requestHDR(false),
+	_relativeEV(0.0f),
 	_asyncRender(false)
 {
 }
@@ -79,6 +80,7 @@ void HDROutputPlugin::RunWindowProc(
 			w->SetSourceTexture(_sourceTexture);
 			w->SetConvertColorSpace(_convertColorSpace);
 			w->SetRequestHDR(_requestHDR);
+			w->SetRelativeEV(_relativeEV);
 		},
 		initialWindowPosition, fnDebugLog, fnStateChangedCallback, retClosedWindowPosition);
 	SetApp(nullptr);
@@ -169,6 +171,22 @@ void HDROutputPlugin::SetConvertColorSpace(PluginBool flag)
 	_convertColorSpace = flag2;
 }
 
+float HDROutputPlugin::GetRelativeEV() noexcept
+{
+	return _relativeEV;
+}
+
+void HDROutputPlugin::SetRelativeEV(float value) noexcept
+{
+	auto app = GetApp();
+	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
+	if (w != nullptr)
+	{
+		w->SetRelativeEV(value);
+	}
+	_relativeEV = value;
+}
+
 void HDROutputPlugin::SetSourceTexture(IUnknown *src) noexcept try
 {
 	ComPtr<ID3D11Texture2D> texture;
@@ -214,6 +232,7 @@ catch (const _com_error& e)
 {
 	ErrorLog(_fnDebugLog, e);
 }
+
 
 void HDROutputPlugin::RequestAsyncUpdateSourceTexture() noexcept
 {
@@ -265,6 +284,8 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetConvertColorSpace>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetConvertColorSpace>,
+		Proxy<float>::Func<&HDROutputPlugin::GetRelativeEV>,
+		Proxy<void, float>::Func<&HDROutputPlugin::SetRelativeEV>,
 		Proxy<void, IUnknown *>::Func<&HDROutputPlugin::SetSourceTexture>,
 		Proxy<void>::Func<&HDROutputPlugin::UpdateSourceTextureDirect>,
 		Proxy<void>::Func<&HDROutputPlugin::RequestAsyncUpdateSourceTexture>,

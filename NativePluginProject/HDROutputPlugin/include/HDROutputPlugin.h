@@ -95,6 +95,9 @@ public:
 	virtual PluginBool GetConvertColorSpace() = 0;
 	virtual void SetConvertColorSpace(PluginBool flag) = 0;
 
+	virtual float GetRelativeEV() noexcept = 0;
+	virtual void SetRelativeEV(float value) noexcept = 0;
+
 	virtual void SetSourceTexture(IUnknown *src) noexcept = 0;
 	virtual void UpdateSourceTextureDirect() noexcept = 0;
 

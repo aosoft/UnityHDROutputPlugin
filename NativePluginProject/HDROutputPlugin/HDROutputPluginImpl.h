@@ -20,6 +20,7 @@ private:
 	ComPtr<ID3D11Texture2D> _sourceTexture;
 	bool _convertColorSpace;
 	bool _requestHDR;
+	float _relativeEV;
 	bool _asyncRender;
 
 public:
@@ -46,6 +47,9 @@ public:
 
 	virtual PluginBool GetConvertColorSpace() override;
 	virtual void SetConvertColorSpace(PluginBool flag) override;
+
+	virtual float GetRelativeEV() noexcept override;
+	virtual void SetRelativeEV(float value) noexcept override;
 
 	virtual void SetSourceTexture(IUnknown *src) noexcept override;
 	virtual void UpdateSourceTextureDirect() noexcept override;

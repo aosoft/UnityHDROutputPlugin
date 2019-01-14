@@ -42,6 +42,9 @@ namespace HDROutput
 		private bool _convertColorSpace = false;
 
 		[SerializeField]
+		private float _relativeEV = 0.0f;
+
+		[SerializeField]
 		private UnityEngine.RectInt? _previewWindowRect = null;
 
 		[MenuItem("Window/HDR Display Output", false, 10000)]
@@ -113,6 +116,13 @@ namespace HDROutput
 			_convertColorSpace = EditorGUI.Toggle(new Rect(0, 96, position.width, 24), "Convert Color Space", _convertColorSpace);
 			_requestHDR = EditorGUI.Toggle(new Rect(0, 120, position.width, 24), "Request HDR Output", _requestHDR);
 
+			float sliderWidth = Mathf.Max(position.width - 52, 0);
+			_relativeEV = EditorGUI.Slider(new Rect(0, 144, sliderWidth, 18), "Relative EV", _relativeEV, -8.0f, 8.0f);
+			if (GUI.Button(new Rect(sliderWidth + 4, 144, 44, 18), "Reset"))
+			{
+				_relativeEV = 0.0f;
+			}
+
 			if (_isActiveThread)
 			{
 				var isHDR = _plugin.IsAvailableHDR;
@@ -132,6 +142,7 @@ namespace HDROutput
 				_plugin.SetSourceTexture(_texture != null ? _texture.GetNativeTexturePtr() : System.IntPtr.Zero);
 				_plugin.ConvertColorSpace = _convertColorSpace;
 				_plugin.RequestHDR = _requestHDR;
+				_plugin.RelativeEV = _relativeEV;
 			}
 		}
 

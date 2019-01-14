@@ -44,6 +44,8 @@ namespace HDROutput
 		private delegate void FnAction(IntPtr self);
 		private delegate PluginBool FnGetFlag(IntPtr self);
 		private delegate void FnSetFlag(IntPtr self, PluginBool flag);
+		private delegate float FnGetFloat(IntPtr self);
+		private delegate void FnSetFloat(IntPtr self, float value);
 
 		private delegate void FnRunWindowProc(IntPtr self, IntPtr wndParent, [In] ref PluginRect rect, IntPtr fnDebugLog, IntPtr fnStateChangedCallback, out PluginRect retLastRect);
 		private delegate void FnRunWindowProcPtr(IntPtr self, IntPtr wndParent, IntPtr rect, IntPtr fnDebugLog, IntPtr fnStateChangedCallback, out PluginRect retLastRect);
@@ -61,6 +63,8 @@ namespace HDROutput
 		private FnGetFlag _fnIsAvailableHDR;
 		private FnGetFlag _fnGetConvertColorSpace;
 		private FnSetFlag _fnSetConvertColorSpace;
+		private FnGetFloat _fnGetRelativeEV;
+		private FnSetFloat _fnSetRelativeEV;
 		private FnSetSourceTexture _fnSetSourceTexture;
 		private FnAction _fnUpdateSourceTextureDirect;
 		private FnRequestAsyncUpdateSourceTexture _fnRequestAsyncUpdateSourceTexture;
@@ -88,9 +92,11 @@ namespace HDROutput
 			_fnIsAvailableHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[6]);
 			_fnGetConvertColorSpace = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[7]);
 			_fnSetConvertColorSpace = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[8]);
-			_fnSetSourceTexture = Marshal.GetDelegateForFunctionPointer<FnSetSourceTexture>(buffer[9]);
-			_fnUpdateSourceTextureDirect = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[10]);
-			_fnRequestAsyncUpdateSourceTexture = Marshal.GetDelegateForFunctionPointer<FnRequestAsyncUpdateSourceTexture>(buffer[11]);
+			_fnGetRelativeEV = Marshal.GetDelegateForFunctionPointer<FnGetFloat>(buffer[9]);
+			_fnSetRelativeEV = Marshal.GetDelegateForFunctionPointer<FnSetFloat>(buffer[10]);
+			_fnSetSourceTexture = Marshal.GetDelegateForFunctionPointer<FnSetSourceTexture>(buffer[11]);
+			_fnUpdateSourceTextureDirect = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[12]);
+			_fnRequestAsyncUpdateSourceTexture = Marshal.GetDelegateForFunctionPointer<FnRequestAsyncUpdateSourceTexture>(buffer[13]);
 		}
 
 		public void Dispose()
@@ -169,6 +175,19 @@ namespace HDROutput
 			set
 			{
 				_fnSetConvertColorSpace(_self, value.ToPluginBool());
+			}
+		}
+
+		public float RelativeEV
+		{
+			get
+			{
+				return _fnGetRelativeEV(_self);
+			}
+
+			set
+			{
+				_fnSetRelativeEV(_self, value);
 			}
 		}
 
