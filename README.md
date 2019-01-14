@@ -49,8 +49,8 @@ It can be output with SDR even in non-HDR compatible environment.
 * Request HDR Output  
     * (checked) If the display is possible to output HDR color, set to HDR output mode.  
     * (not checked) Always output with SDR.
-* Topmost
-    Set to the topmost window.
+* Relative EV  
+    Adjust the brightness of the preview.
 
 ## Notes
 
