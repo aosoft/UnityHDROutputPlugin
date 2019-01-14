@@ -9,6 +9,7 @@ Material::Material(ComPtr<ID3D11Device> const& device) :
 	_device(device),
 	_descTexture(),
 	_constants(),
+	_relativeEV(0.0f),
 	_pscode(PSCode::PassThrough)
 {
 	HRException::CheckNull(device);
@@ -134,6 +135,13 @@ void Material::SetTexture(ComPtr<ID3D11Texture2D> const& texture)
 		}
 	}
 }
+
+void Material::SetRelativeEV(float value)
+{
+	_relativeEV = value;
+	_constants.colorCoefficient = std::pow(2.0f, value);
+}
+
 
 void Material::Setup(ComPtr<ID3D11DeviceContext> const& dc, PSCode pscode)
 {

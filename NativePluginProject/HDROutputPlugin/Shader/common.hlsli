@@ -12,7 +12,7 @@ struct PS_INPUT
 
 cbuffer cbuffer0 : register(b0)
 {
-	float relativeEV;
+	float colorCoefficient;
 };
 
 Texture2D tex : register(t0);
@@ -22,5 +22,5 @@ SamplerState texSampler : register(s0);
 float4 GetPixel(float2 uv)
 {
 	float4 color = tex.Sample(texSampler, uv);
-	return float4(color.rgb * pow(2, relativeEV), color.a);
+	return float4(color.rgb * colorCoefficient, color.a);
 }

@@ -12,11 +12,11 @@ enum class PSCode : int32_t
 	LinearToBT2100PQ
 };
 
-#pragma pack(push, 16)
+#pragma pack(push, 4)
 
 struct MaterialConstants
 {
-	float relativeEV;
+	float colorCoefficient;
 
 	float dummy[3];
 };
@@ -39,6 +39,7 @@ private:
 
 	MaterialConstants _constants;
 	ComPtr<ID3D11Buffer> _constantsBuffer;
+	float _relativeEV;
 
 	ComPtr<ID3D11SamplerState> _sampler;
 	ComPtr<ID3D11BlendState> _blend;
@@ -60,13 +61,10 @@ public:
 
 	float GetRelativeEV() const noexcept
 	{
-		return _constants.relativeEV;
+		return _relativeEV;
 	}
 
-	void SetRelativeEV(float value) noexcept
-	{
-		_constants.relativeEV = value;
-	}
+	void SetRelativeEV(float value);
 
 	void Setup(ComPtr<ID3D11DeviceContext> const& dc, PSCode pscode);
 };
