@@ -47,6 +47,19 @@ namespace HDROutput
 		[SerializeField]
 		private UnityEngine.RectInt? _previewWindowRect = null;
 
+		private static string[] _colorspaceNames = new string[]{
+			"(SDR) sRGB",
+			"(HDR) BT.2100 PQ",
+			"(HDR) BT.709 Linear"
+		};
+
+		private static int[] _colorspaceValues = new int[]{
+			(int)PluginColorSpace.sRGB,
+			(int)PluginColorSpace.BT2100_PQ,
+			(int)PluginColorSpace.BT709_Linear,
+		};
+
+
 		[MenuItem("Window/HDR Display Output", false, 10000)]
 		public static void Open()
 		{
@@ -114,7 +127,12 @@ namespace HDROutput
 			_texture = EditorGUI.ObjectField(new Rect(0, 32, position.width / 2, 64), "Source Texture", _texture, typeof(Texture), true) as Texture;
 
 			_convertColorSpace = EditorGUI.Toggle(new Rect(0, 96, position.width, 24), "Convert Color Space", _convertColorSpace);
-			//_requestHDR = EditorGUI.Toggle(new Rect(0, 120, position.width, 24), "Request HDR Output", _requestHDR);
+			EditorGUI.LabelField(new Rect(0, 120, 150, 24), "Requese Color Space");
+			_requestColorSpace = (PluginColorSpace)EditorGUI.IntPopup(
+				new Rect(150, 120, position.width - 150, 24),
+				(int)_requestColorSpace,
+				_colorspaceNames,
+				_colorspaceValues);
 
 			float sliderWidth = Mathf.Max(position.width - 52, 0);
 			_relativeEV = EditorGUI.Slider(new Rect(0, 144, sliderWidth, 18), "Relative EV", _relativeEV, -8.0f, 8.0f);
