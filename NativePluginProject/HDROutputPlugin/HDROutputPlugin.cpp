@@ -17,7 +17,7 @@ HDROutputPlugin::HDROutputPlugin() :
 	_fnDebugLog(nullptr),
 	_fnStateChangedCallback(nullptr),
 	_convertColorSpace(false),
-	_requestHDR(false),
+	_requestColorSpace(ColorSpace::sRGB),
 	_relativeEV(0.0f),
 	_asyncRender(false)
 {
@@ -79,7 +79,7 @@ void HDROutputPlugin::RunWindowProc(
 		{
 			w->SetSourceTexture(_sourceTexture);
 			w->SetConvertColorSpace(_convertColorSpace);
-			w->SetRequestHDR(_requestHDR);
+			w->SetRequestColorSpace(_requestColorSpace);
 			w->SetRelativeEV(_relativeEV);
 		},
 		initialWindowPosition, fnDebugLog, fnStateChangedCallback, retClosedWindowPosition);
@@ -113,15 +113,15 @@ void HDROutputPlugin::CloseWindow() noexcept
 	});
 }
 
-PluginBool HDROutputPlugin::GetRequestHDR() noexcept
+PluginColorSpace HDROutputPlugin::GetRequestColorSpace() noexcept
 {
-	return ToPluginBool(_requestHDR);
+	return static_cast<PluginColorSpace>(_requestColorSpace);
 }
 
-void HDROutputPlugin::SetRequestHDR(PluginBool flag) noexcept
+void HDROutputPlugin::SetRequestColorSpace(PluginColorSpace colorSpace) noexcept
 {
-	auto flag2 = FromPluginBool(flag);
-	if (flag2 == _requestHDR)
+	auto colorSpace2 = static_cast<ColorSpace>(colorSpace);
+	if (colorSpace2 == _requestColorSpace)
 	{
 		return;
 	}
@@ -134,24 +134,24 @@ void HDROutputPlugin::SetRequestHDR(PluginBool flag) noexcept
 		{
 			return;
 		}
-		app->BeginInvoke([app, flag2]()
+		app->BeginInvoke([app, colorSpace2]()
 		{
 			auto w = app->GetWindow().lock();
 			if (w != nullptr)
 			{
-				w->SetRequestHDR(flag2);
+				w->SetRequestColorSpace(colorSpace2);
 			}
 		});
 	}
-	_requestHDR = flag2;
+	_requestColorSpace = colorSpace2;
 
 }
 
-PluginBool HDROutputPlugin::IsAvailableHDR() noexcept
+PluginColorSpace HDROutputPlugin::GetActiveColorSpace() noexcept
 {
 	auto app = GetApp();
 	auto w = app != nullptr ? app->GetWindow().lock() : nullptr;
-	return ToPluginBool(w != nullptr && w->IsAvailableHDR());
+	return static_cast<PluginColorSpace>(w != nullptr ? w->GetActiveColorSpace() : ColorSpace::sRGB);
 }
 
 PluginBool HDROutputPlugin::GetConvertColorSpace()
@@ -279,9 +279,9 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		Proxy<void>::Func<&HDROutputPlugin::Destroy>,
 		Proxy<void, HWND, const PluginRect *, FnDebugLog, FnStateChangedCallback, PluginRect *>::Func<&HDROutputPlugin::RunWindowProc>,
 		Proxy<void>::Func<&HDROutputPlugin::CloseWindow>,
-		Proxy<PluginBool>::Func<&HDROutputPlugin::GetRequestHDR>,
-		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetRequestHDR>,
-		Proxy<PluginBool>::Func<&HDROutputPlugin::IsAvailableHDR>,
+		Proxy<PluginColorSpace>::Func<&HDROutputPlugin::GetRequestColorSpace>,
+		Proxy<void, PluginColorSpace>::Func<&HDROutputPlugin::SetRequestColorSpace>,
+		Proxy<PluginColorSpace>::Func<&HDROutputPlugin::GetActiveColorSpace>,
 		Proxy<PluginBool>::Func<&HDROutputPlugin::GetConvertColorSpace>,
 		Proxy<void, PluginBool>::Func<&HDROutputPlugin::SetConvertColorSpace>,
 		Proxy<float>::Func<&HDROutputPlugin::GetRelativeEV>,

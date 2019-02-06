@@ -36,7 +36,7 @@ namespace HDROutput
 		private Texture _texture = null;
 
 		[SerializeField]
-		private bool _requestHDR = false;
+		private PluginColorSpace _requestColorSpace = PluginColorSpace.sRGB;
 
 		[SerializeField]
 		private bool _convertColorSpace = false;
@@ -114,7 +114,7 @@ namespace HDROutput
 			_texture = EditorGUI.ObjectField(new Rect(0, 32, position.width / 2, 64), "Source Texture", _texture, typeof(Texture), true) as Texture;
 
 			_convertColorSpace = EditorGUI.Toggle(new Rect(0, 96, position.width, 24), "Convert Color Space", _convertColorSpace);
-			_requestHDR = EditorGUI.Toggle(new Rect(0, 120, position.width, 24), "Request HDR Output", _requestHDR);
+			//_requestHDR = EditorGUI.Toggle(new Rect(0, 120, position.width, 24), "Request HDR Output", _requestHDR);
 
 			float sliderWidth = Mathf.Max(position.width - 52, 0);
 			_relativeEV = EditorGUI.Slider(new Rect(0, 144, sliderWidth, 18), "Relative EV", _relativeEV, -8.0f, 8.0f);
@@ -125,15 +125,28 @@ namespace HDROutput
 
 			if (_isActiveThread)
 			{
-				var isHDR = _plugin.IsAvailableHDR;
-				var gammaCorrect = _convertColorSpace ? isHDR ?
-					"BT.709 / Linear -> BT.2100 / PQ" :
-					"BT.709 / Linear -> BT.709 / sRGB" :
-					"None (Pass through)";
+				var activeColorSpace = _plugin.ActiveColorSpace;
+				var gammaCorrect = "None (Pass through)";
+				if (_convertColorSpace)
+				{
+					switch (activeColorSpace)
+					{
+						case PluginColorSpace.sRGB:
+							gammaCorrect = "BT.709 / Linear -> BT.709 / sRGB (SDR)";
+							break;
+						case PluginColorSpace.BT2100_PQ:
+							gammaCorrect = "BT.709 / Linear -> BT.2100 / PQ (HDR)";
+							break;
+						case PluginColorSpace.BT709_Linear:
+							gammaCorrect = "BT.709 / Linear -> BT.709 / Linear (HDR)";
+							break;
+
+					}
+				}
 
 				EditorGUI.LabelField(
 					new Rect(0, 168, position.width, 24),
-					string.Format("Output:{0}, Convert Color Space:{1}", isHDR ? "HDR" : "SDR", gammaCorrect));
+					string.Format("Convert Color Space:{0}", gammaCorrect));
 			}
 
 			if (EditorGUI.EndChangeCheck())
@@ -141,7 +154,7 @@ namespace HDROutput
 				//	property changed
 				_plugin.SetSourceTexture(_texture != null ? _texture.GetNativeTexturePtr() : System.IntPtr.Zero);
 				_plugin.ConvertColorSpace = _convertColorSpace;
-				_plugin.RequestHDR = _requestHDR;
+				_plugin.RequestColorSpace = _requestColorSpace;
 				_plugin.RelativeEV = _relativeEV;
 			}
 		}

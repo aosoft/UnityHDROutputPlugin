@@ -34,7 +34,7 @@ private:
 
 	bool _convertColorSpace;
 
-	bool _lastIsHDR;
+	ColorSpace _lastActiveColorSpace;
 	bool _lastConvertColorSpace;
 
 public:
@@ -73,16 +73,16 @@ public:
 		}
 	}
 
-	bool GetRequestHDR() const
+	ColorSpace GetRequestColorSpace() const noexcept
 	{
-		return _renderTarget->GetRequestHDR();
+		return _renderTarget->GetRequestColorSpace();
 	}
 
-	void SetRequestHDR(bool flag);
+	void SetRequestColorSpace(ColorSpace colorSpace);
 
-	bool IsAvailableHDR() const noexcept
+	ColorSpace GetActiveColorSpace() const noexcept
 	{
-		return _renderTarget->IsAvailableHDR();
+		return _renderTarget->GetActiveColorSpace();
 	}
 
 	bool GetConvertColorSpace() const
@@ -120,7 +120,7 @@ public:
 	LRESULT OnSize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
-	void UpdateWindowText(bool isHDR, bool convertColorSpace) noexcept;
+	void UpdateWindowText(ColorSpace activeColorSpace, bool convertColorSpace) noexcept;
 
 	void StateChangedCallback(PluginStateChanged state)
 	{

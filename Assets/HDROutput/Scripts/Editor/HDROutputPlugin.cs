@@ -22,6 +22,14 @@ namespace HDROutput
 		True
 	};
 
+	public enum PluginColorSpace : int
+	{
+		sRGB = 0,
+		BT2100_PQ,
+		BT709_Linear
+	}
+
+
 	[StructLayout(LayoutKind.Sequential, Pack = 4)]
 	internal struct PluginRect
 	{
@@ -46,6 +54,8 @@ namespace HDROutput
 		private delegate void FnSetFlag(IntPtr self, PluginBool flag);
 		private delegate float FnGetFloat(IntPtr self);
 		private delegate void FnSetFloat(IntPtr self, float value);
+		private delegate PluginColorSpace FnGetColorSpace(IntPtr self);
+		private delegate void FnSetColorSpace(IntPtr self, PluginColorSpace flag);
 
 		private delegate void FnRunWindowProc(IntPtr self, IntPtr wndParent, [In] ref PluginRect rect, IntPtr fnDebugLog, IntPtr fnStateChangedCallback, out PluginRect retLastRect);
 		private delegate void FnRunWindowProcPtr(IntPtr self, IntPtr wndParent, IntPtr rect, IntPtr fnDebugLog, IntPtr fnStateChangedCallback, out PluginRect retLastRect);
@@ -58,9 +68,9 @@ namespace HDROutput
 		private FnRunWindowProc _fnRunWindowProc;
 		private FnRunWindowProcPtr _fnRunWindowProcPtr;
 		private FnAction _fnCloseWindow;
-		private FnGetFlag _fnGetRequestHDR;
-		private FnSetFlag _fnSetRequestHDR;
-		private FnGetFlag _fnIsAvailableHDR;
+		private FnGetColorSpace _fnGetRequestColorSpace;
+		private FnSetColorSpace _fnSetRequestColorSpace;
+		private FnGetColorSpace _fnGetActiveColorSpace;
 		private FnGetFlag _fnGetConvertColorSpace;
 		private FnSetFlag _fnSetConvertColorSpace;
 		private FnGetFloat _fnGetRelativeEV;
@@ -87,9 +97,9 @@ namespace HDROutput
 			_fnRunWindowProc = Marshal.GetDelegateForFunctionPointer<FnRunWindowProc>(buffer[2]);
 			_fnRunWindowProcPtr = Marshal.GetDelegateForFunctionPointer<FnRunWindowProcPtr>(buffer[2]);
 			_fnCloseWindow = Marshal.GetDelegateForFunctionPointer<FnAction>(buffer[3]);
-			_fnGetRequestHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[4]);
-			_fnSetRequestHDR = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[5]);
-			_fnIsAvailableHDR = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[6]);
+			_fnGetRequestColorSpace = Marshal.GetDelegateForFunctionPointer<FnGetColorSpace>(buffer[4]);
+			_fnSetRequestColorSpace = Marshal.GetDelegateForFunctionPointer<FnSetColorSpace>(buffer[5]);
+			_fnGetActiveColorSpace = Marshal.GetDelegateForFunctionPointer<FnGetColorSpace>(buffer[6]);
 			_fnGetConvertColorSpace = Marshal.GetDelegateForFunctionPointer<FnGetFlag>(buffer[7]);
 			_fnSetConvertColorSpace = Marshal.GetDelegateForFunctionPointer<FnSetFlag>(buffer[8]);
 			_fnGetRelativeEV = Marshal.GetDelegateForFunctionPointer<FnGetFloat>(buffer[9]);
@@ -144,24 +154,24 @@ namespace HDROutput
 			_fnCloseWindow(_self);
 		}
 
-		public bool RequestHDR
+		public PluginColorSpace RequestColorSpace
 		{
 			get
 			{
-				return _fnGetRequestHDR(_self).ToBool();
+				return _fnGetRequestColorSpace(_self);
 			}
 
 			set
 			{
-				_fnSetRequestHDR(_self, value.ToPluginBool());
+				_fnSetRequestColorSpace(_self, value);
 			}
 		}
 
-		public bool IsAvailableHDR
+		public PluginColorSpace ActiveColorSpace
 		{
 			get
 			{
-				return _fnIsAvailableHDR(_self).ToBool();
+				return _fnGetActiveColorSpace(_self);
 			}
 		}
 

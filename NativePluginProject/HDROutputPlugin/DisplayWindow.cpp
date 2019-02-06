@@ -6,7 +6,7 @@ DisplayWindow::DisplayWindow() :
 	_updatedTextureCounter(0),
 	_updatedTextureCounterChecker(0),
 	_convertColorSpace(false),
-	_lastIsHDR(false),
+	_lastActiveColorSpace(ColorSpace::sRGB),
 	_lastConvertColorSpace(false)
 {
 }
@@ -35,9 +35,9 @@ void DisplayWindow::InitializeInstance(
 	_material = std::make_unique<Material>(_device);
 	_renderTarget = std::make_unique<RenderTarget>(m_hWnd, _device);
 
-	_lastIsHDR = _renderTarget->IsAvailableHDR();
+	_lastActiveColorSpace = _renderTarget->GetActiveColorSpace();
 	_lastConvertColorSpace = _convertColorSpace;
-	UpdateWindowText(_lastIsHDR, _lastConvertColorSpace);
+	UpdateWindowText(_lastActiveColorSpace, _lastConvertColorSpace);
 }
 
 std::shared_ptr<DisplayWindow> DisplayWindow::CreateInstance(
@@ -55,11 +55,11 @@ std::shared_ptr<DisplayWindow> DisplayWindow::CreateInstance(
 	return ret;
 }
 
-void DisplayWindow::SetRequestHDR(bool flag)
+void DisplayWindow::SetRequestColorSpace(ColorSpace colorSpace)
 {
-	bool hdr = _renderTarget->IsAvailableHDR();
-	_renderTarget->SetRequestHDR(flag);
-	if (hdr != _renderTarget->IsAvailableHDR())
+	auto current = _renderTarget->GetActiveColorSpace();
+	_renderTarget->SetRequestColorSpace(colorSpace);
+	if (current != _renderTarget->GetActiveColorSpace())
 	{
 		StateChangedCallback(PluginStateChanged::CurrentHDRStateChanged);
 	}
@@ -87,29 +87,37 @@ void DisplayWindow::Render()
 
 	ComPtr<ID3D11DeviceContext> dc;
 	_device->GetImmediateContext(&dc);
-	bool isHDR = _renderTarget->IsAvailableHDR();
+	auto activeColorSpace = _renderTarget->GetActiveColorSpace();
 	bool convertColorSpace = _convertColorSpace;
 
 	dc->ClearState();
 
+	static const PSCode pscodes[] =
+	{
+		PSCode::LinearToSRGB,
+		PSCode::LinearToBT2100PQ,
+		PSCode::PassThrough
+	};
+
 	_material->Setup(
 		dc,
-		convertColorSpace ? isHDR ?
-		PSCode::LinearToBT2100PQ : PSCode::LinearToSRGB : PSCode::PassThrough);
+		convertColorSpace ?
+			pscodes[static_cast<size_t>(activeColorSpace)] :
+			PSCode::PassThrough);
 	_renderTarget->Setup(dc, _material->GetTextureDesc());
 	_mesh->Draw(dc);
 	_renderTarget->Present();
 
 	if (convertColorSpace != _lastConvertColorSpace ||
-		isHDR != _lastIsHDR)
+		activeColorSpace != _lastActiveColorSpace)
 	{
-		if (isHDR != _lastIsHDR)
+		if (activeColorSpace != _lastActiveColorSpace)
 		{
 			StateChangedCallback(PluginStateChanged::CurrentHDRStateChanged);
 		}
-		UpdateWindowText(isHDR, convertColorSpace);
+		UpdateWindowText(activeColorSpace, convertColorSpace);
 		_lastConvertColorSpace = convertColorSpace;
-		_lastIsHDR = isHDR;
+		_lastActiveColorSpace = activeColorSpace;
 	}
 }
 
@@ -159,10 +167,10 @@ LRESULT DisplayWindow::OnMove(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 {
 	if (_renderTarget != nullptr)
 	{
-		bool hdr = _renderTarget->IsAvailableHDR();
+		auto activeColorSpace = _renderTarget->GetActiveColorSpace();
 		if (_renderTarget->InitializeSwapChainIfDisplayChanged() == InitializeSwapChainResult::Initialized)
 		{
-			if (hdr != _renderTarget->IsAvailableHDR())
+			if (activeColorSpace != _renderTarget->GetActiveColorSpace())
 			{
 				StateChangedCallback(PluginStateChanged::CurrentHDRStateChanged);
 				Render();
@@ -195,15 +203,38 @@ catch (const _com_error& e)
 	return 0;
 }
 
-void DisplayWindow::UpdateWindowText(bool isHDR, bool convertColorSpace) noexcept try
+void DisplayWindow::UpdateWindowText(ColorSpace activeColorSpace, bool convertColorSpace) noexcept try
 {
+	const wchar_t *colorSpaceName = L"";
+	const wchar_t *convert = L"None (Pass through)";
+	switch (activeColorSpace)
+	{
+	case ColorSpace::BT2100_PQ:
+		colorSpaceName = L"HDR / BT.2100 (PQ)";
+		if (convertColorSpace)
+		{
+			convert = L"Linear -> BT.2100 (PQ)";
+		}
+		break;
+
+	case ColorSpace::BT709_Linear:
+		colorSpaceName = L"HDR / BT.709 (Linear)";
+		if (convertColorSpace)
+		{
+			convert = L"None (BT.709 (Linear))";
+		}
+		break;
+
+	default:
+		colorSpaceName = L"SDR / sRGB";
+		if (convertColorSpace)
+		{
+			convert = L"Linear -> sRGB";
+		}
+	};
+
 	wchar_t tmp[256];
-	swprintf_s(tmp, L"Unity Preview [Output:%s, Convert: %s]",
-		isHDR ? L"HDR" : L"SDR",
-		convertColorSpace ? isHDR ?
-		L"Linear -> BT.2100 (PQ)" :
-		L"Linear -> sRGB" :
-		L"None (Pass through)");
+	swprintf_s(tmp, L"Unity Preview [Output:%s, Convert: %s]", colorSpaceName, convert);
 
 	SetWindowText(tmp);
 }

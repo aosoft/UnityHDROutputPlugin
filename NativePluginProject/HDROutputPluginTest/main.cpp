@@ -110,7 +110,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hInst, LPWSTR pszCommandLine,
 	g_plugin->SetD3D11Device(device);
 
 	g_plugin->SetSourceTexture(texture);
-	g_plugin->SetRequestHDR(PluginBool::True);
+	g_plugin->SetRequestColorSpace(PluginColorSpace::BT2100_PQ);
 	g_plugin->SetConvertColorSpace(PluginBool::True);
 
 	PluginRect closed;

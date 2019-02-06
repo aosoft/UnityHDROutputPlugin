@@ -11,6 +11,13 @@ enum class InitializeSwapChainResult : int32_t
 	DoNotDisplayChanged
 };
 
+enum class ColorSpace : int32_t
+{
+	sRGB = 0,
+	BT2100_PQ,
+	BT709_Linear
+};
+
 class RenderTarget
 {
 private:
@@ -28,22 +35,22 @@ private:
 	uint32_t _height;
 	uint32_t _bufferCount;
 
-	bool _requestHDR;
-	bool _availableHDR;
+	ColorSpace _requestColorSpace;
+	ColorSpace _activeColorSpace;
 
 public:
 	RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device);
 
-	bool GetRequestHDR() const noexcept
+	ColorSpace GetRequestColorSpace() const noexcept
 	{
-		return _requestHDR;
+		return _requestColorSpace;
 	}
 
-	void SetRequestHDR(bool flag);
+	void SetRequestColorSpace(ColorSpace colorSpace);
 
-	bool IsAvailableHDR() const noexcept
+	ColorSpace GetActiveColorSpace() const noexcept
 	{
-		return _availableHDR;
+		return _activeColorSpace;
 	}
 
 	InitializeSwapChainResult CheckAndInitializeSwapChain();

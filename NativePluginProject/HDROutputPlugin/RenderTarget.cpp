@@ -20,8 +20,8 @@ RenderTarget::RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device) :
 	_width(0),
 	_height(0),
 	_bufferCount(0),
-	_requestHDR(false),
-	_availableHDR(false)
+	_requestColorSpace(ColorSpace::sRGB),
+	_activeColorSpace(ColorSpace::sRGB)
 {
 	ComPtr<IDXGIDevice> dxgidevice;
 
@@ -32,13 +32,13 @@ RenderTarget::RenderTarget(HWND hwnd, ComPtr<ID3D11Device> const& device) :
 	HRException::CheckHR(_adapter->GetParent(IID_PPV_ARGS(&_factory)));
 }
 
-void RenderTarget::SetRequestHDR(bool flag)
+void RenderTarget::SetRequestColorSpace(ColorSpace colorSpace)
 {
-	if (flag != _requestHDR)
+	if (colorSpace != _requestColorSpace)
 	{
 		FinalizeSwapChain();
 	}
-	_requestHDR = flag;
+	_requestColorSpace = colorSpace;
 }
 
 InitializeSwapChainResult RenderTarget::CheckAndInitializeSwapChain()
@@ -158,8 +158,8 @@ InitializeSwapChainResult RenderTarget::InitializeSwapChain()
 	hr = _factory->QueryInterface(&factory2);
 	if (SUCCEEDED(hr))
 	{
-		bool hdr = false;
-		if (_requestHDR)
+		auto colorSpace = ColorSpace::sRGB;
+		if (_requestColorSpace != ColorSpace::sRGB)
 		{
 			for (UINT i = 0; true; i++)
 			{
@@ -180,17 +180,37 @@ InitializeSwapChainResult RenderTarget::InitializeSwapChain()
 					desc.Monitor == currentDisplay &&
 					desc.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020)
 				{
-					hdr = true;
+					colorSpace = _requestColorSpace;
 					break;
 				}
 			}
 		}
 
 		auto desc = DXGI_SWAP_CHAIN_DESC1();
+		DXGI_COLOR_SPACE_TYPE colorSpaceDXGI = DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709;
+
 		desc.BufferCount = 2;
 		desc.Width = width;
 		desc.Height = height;
-		desc.Format = hdr ? DXGI_FORMAT_R10G10B10A2_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM;
+
+		switch (colorSpace)
+		{
+		case ColorSpace::BT2100_PQ:
+			desc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;
+			colorSpaceDXGI = DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020;
+			break;
+
+		case ColorSpace::BT709_Linear:
+			desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+			colorSpaceDXGI = DXGI_COLOR_SPACE_RGB_FULL_G10_NONE_P709;
+			break;
+
+		default:
+			desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			colorSpaceDXGI = DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709;
+			break;
+		};
+
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.SampleDesc.Count = 1;
@@ -205,21 +225,18 @@ InitializeSwapChainResult RenderTarget::InitializeSwapChain()
 
 			if (SUCCEEDED(swapchain1->QueryInterface(&swapchan3)))
 			{
-				DXGI_COLOR_SPACE_TYPE colorSpace =
-					hdr ? DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020 : DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709;
-
 				UINT colorSpaceSupport = 0;
-				if (SUCCEEDED(swapchan3->CheckColorSpaceSupport(colorSpace, &colorSpaceSupport)) &&
+				if (SUCCEEDED(swapchan3->CheckColorSpaceSupport(colorSpaceDXGI, &colorSpaceSupport)) &&
 					((colorSpaceSupport & DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT) == DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT))
 				{
-					if (SUCCEEDED(swapchan3->SetColorSpace1(colorSpace)))
+					if (SUCCEEDED(swapchan3->SetColorSpace1(colorSpaceDXGI)))
 					{
-						_availableHDR = hdr;
+						_activeColorSpace = colorSpace;
 					}
 					else
 					{
 						swapchan3->SetColorSpace1(DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709);
-						_availableHDR = false;
+						_activeColorSpace = ColorSpace::sRGB;
 					}
 				}
 			}
@@ -267,7 +284,7 @@ void RenderTarget::FinalizeSwapChain()
 	_swapchain = nullptr;
 	_currentDisplay = nullptr;
 	_rtv = nullptr;
-	_availableHDR = false;
+	_activeColorSpace = ColorSpace::sRGB;
 	_format = DXGI_FORMAT_UNKNOWN;
 	_width = 0;
 	_height = 0;

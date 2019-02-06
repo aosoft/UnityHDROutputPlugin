@@ -35,6 +35,13 @@ enum class PluginStateChanged : int32_t
 	CurrentHDRStateChanged,
 };
 
+enum class PluginColorSpace : int32_t
+{
+	sRGB = 0,
+	BT2100_PQ,
+	BT709_Linear
+};
+
 #pragma pack(push, 4)
 
 struct PluginRect
@@ -88,9 +95,9 @@ public:
 
 	virtual void CloseWindow() noexcept = 0;
 
-	virtual PluginBool GetRequestHDR() noexcept = 0;
-	virtual void SetRequestHDR(PluginBool flag) noexcept = 0;
-	virtual PluginBool IsAvailableHDR() noexcept = 0;
+	virtual PluginColorSpace GetRequestColorSpace() noexcept = 0;
+	virtual void SetRequestColorSpace(PluginColorSpace colorSpace) noexcept = 0;
+	virtual PluginColorSpace GetActiveColorSpace() noexcept = 0;
 
 	virtual PluginBool GetConvertColorSpace() = 0;
 	virtual void SetConvertColorSpace(PluginBool flag) = 0;
