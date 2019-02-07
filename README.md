@@ -46,9 +46,8 @@ It can be output with SDR even in non-HDR compatible environment.
 * Convert Color Space  
     * (checked) The color space (color gamut, transfer characteristics) suitable for display is converted.
     * (not checked) The contents of Texture are displayed as they are.  
-* Request HDR Output  
-    * (checked) If the display is possible to output HDR color, set to HDR output mode.  
-    * (not checked) Always output with SDR.
+* Request Color Space  
+    Set the requested display color space. If the requested color space is not supported, it becomes sRGB.
 * Relative EV  
     Adjust the brightness of the preview.
 
