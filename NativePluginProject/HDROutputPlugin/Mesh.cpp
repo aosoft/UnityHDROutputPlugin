@@ -26,20 +26,18 @@ Mesh::Mesh(ComPtr<ID3D11Device> const& device,
 	ComPtr<ID3D11InputLayout> ret;
 
 	HRException::CheckNull(device);
-	HRException::CheckHR(
-		device->CreateBuffer(
-			&CD3D11_BUFFER_DESC(
-				static_cast<uint32_t>(vertCount * sizeof(MeshVertex)),
-				D3D11_BIND_VERTEX_BUFFER,
-				D3D11_USAGE_IMMUTABLE),
-			&CD3D11_SUBRESOURCE_DATA(verticies, sizeof(MeshVertex), 0), &_vertexBuffer));
-	HRException::CheckHR(
-		device->CreateBuffer(
-			&CD3D11_BUFFER_DESC(
-				static_cast<uint32_t>(indexCount * sizeof(uint16_t)),
-				D3D11_BIND_INDEX_BUFFER,
-				D3D11_USAGE_IMMUTABLE),
-			&CD3D11_SUBRESOURCE_DATA(indicies, sizeof(uint16_t), 0), &_indexBuffer));
+	auto desc1 = CD3D11_BUFFER_DESC(
+		static_cast<uint32_t>(vertCount * sizeof(MeshVertex)),
+		D3D11_BIND_VERTEX_BUFFER,
+		D3D11_USAGE_IMMUTABLE);
+	auto subresource1 = CD3D11_SUBRESOURCE_DATA(verticies, sizeof(MeshVertex), 0);
+	HRException::CheckHR(device->CreateBuffer(&desc1, &subresource1, &_vertexBuffer));
+	auto desc2 = CD3D11_BUFFER_DESC(
+		static_cast<uint32_t>(indexCount * sizeof(uint16_t)),
+		D3D11_BIND_INDEX_BUFFER,
+		D3D11_USAGE_IMMUTABLE);
+	auto subresource2 = CD3D11_SUBRESOURCE_DATA(indicies, sizeof(uint16_t), 0);
+	HRException::CheckHR(device->CreateBuffer(&desc2, &subresource2, &_indexBuffer));
 }
 
 void Mesh::Draw(ComPtr<ID3D11DeviceContext> const& dc)

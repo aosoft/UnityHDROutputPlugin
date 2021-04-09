@@ -55,14 +55,11 @@ ComPtr<ID3D11Texture2D> CreateSampleTexture(
 	}
 	
 	D3D11_SUBRESOURCE_DATA resource = { &buf[0], width * sizeof(uint32_t), 0 };
-
-	if (FAILED(device->CreateTexture2D(
-		&CD3D11_TEXTURE2D_DESC(
-			DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1,
-			D3D11_BIND_SHADER_RESOURCE,
-			D3D11_USAGE_IMMUTABLE),
-		&resource,
-		&ret)))
+	auto desc = CD3D11_TEXTURE2D_DESC(
+		DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1,
+		D3D11_BIND_SHADER_RESOURCE,
+		D3D11_USAGE_IMMUTABLE);
+	if (FAILED(device->CreateTexture2D(&desc, &resource, &ret)))
 	{
 		ret = nullptr;
 	}
