@@ -60,13 +60,13 @@ void App::Run(
 		&feature,
 		&dc));
 
-	/*{
+	{
 		ComPtr<ID3D10Multithread> multithread;
 		if (SUCCEEDED(device->QueryInterface(&multithread)))
 		{
 			multithread->SetMultithreadProtected(TRUE);
 		}
-	}*/
+	}
 
 	auto w = DisplayWindow::CreateInstance(wndParent, device, fnDebugLog, fnStateChangedCallback);
 	auto sharedTexture = std::make_shared<SharedTexture>(device);

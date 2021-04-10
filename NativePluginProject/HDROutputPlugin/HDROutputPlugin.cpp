@@ -4,9 +4,11 @@
 
 IUnityInterfaces *g_unityInterfaces = nullptr;
 static std::vector<HDROutputPlugin *> g_plugins;
+static std::mutex g_mutexPlugins;
 
 void UNITY_INTERFACE_API OnUnityRenderingEvent(int eventId)
 {
+	std::lock_guard<std::mutex> lock(g_mutexPlugins);
 	for (auto it = g_plugins.begin(); it != g_plugins.end(); it++)
 	{
 		(*it)->UpdateSourceTextureDirect();
@@ -29,12 +31,15 @@ HDROutputPlugin::~HDROutputPlugin()
 
 void HDROutputPlugin::Destroy() noexcept
 {
-	for (auto it = g_plugins.begin(); it != g_plugins.end(); it++)
 	{
-		if (this == *it)
+		std::lock_guard<std::mutex> lock(g_mutexPlugins);
+		for (auto it = g_plugins.begin(); it != g_plugins.end(); it++)
 		{
-			g_plugins.erase(it);
-			break;
+			if (this == *it)
+			{
+				g_plugins.erase(it);
+				break;
+			}
 		}
 	}
 	CloseWindow();
@@ -312,6 +317,7 @@ int32_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API CreateHDROutputPluginInstance
 		index++;
 	}
 
+	std::lock_guard<std::mutex> lock(g_mutexPlugins);
 	g_plugins.push_back(plugin);
 
 	return requiredSize;

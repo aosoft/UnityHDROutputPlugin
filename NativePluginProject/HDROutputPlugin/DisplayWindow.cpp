@@ -69,7 +69,10 @@ void DisplayWindow::SetSourceTexture(ComPtr<ID3D11Texture2D> const& source)
 {
 	_sharedTexture->SetSourceTexture(source);
 	_material->SetTexture(_sharedTexture->GetTexture());
-	UpdateSourceTexture();
+
+	//	Note:
+	// 	UpdateSourceTexture must be executed on the Unity rendering thread (OnUnityRenderingEvent).
+	//UpdateSourceTexture();
 }
 
 void DisplayWindow::UpdateSourceTexture()
